@@ -16,7 +16,7 @@ AI-powered personal memory management system for capturing, storing, and intelli
 
 ```bash
 # Install the skill
-clawhub install memory-os
+clawhub install openclaw-memory-os
 ```
 
 ### Step 2: Install the npm package
@@ -37,17 +37,17 @@ npm link
 
 ```bash
 # Initialize
-memory-os init
+openclaw-memory-os init
 
 # Configure
-memory-os config set owner.name "Your Name"
-memory-os config set owner.email "your@email.com"
+openclaw-memory-os config set owner.name "Your Name"
+openclaw-memory-os config set owner.email "your@email.com"
 ```
 
 ### Step 4: Verify Installation
 
 ```bash
-memory-os status
+openclaw-memory-os status
 ```
 
 ---
@@ -108,10 +108,10 @@ Complete memory management system:
 import { MemoryOS, MemoryType } from 'openclaw-memory-os';
 ```
 
-**CLI Name**: When using CLI, use `memory-os`:
+**CLI Name**: When using CLI, use `openclaw-memory-os`:
 ```bash
-memory-os init
-memory-os collect --source ~/Documents
+openclaw-memory-os init
+openclaw-memory-os collect --source ~/Documents
 ```
 
 ### Pattern 1: Save Memory
@@ -243,35 +243,35 @@ async function handleConversation(userMessage: string) {
 
 ```bash
 # Initialize
-memory-os init
+openclaw-memory-os init
 
 # Collect memories
-memory-os collect --source ~/Documents
-memory-os collect --chat chat-export.json
+openclaw-memory-os collect --source ~/Documents
+openclaw-memory-os collect --chat chat-export.json
 
 # Search
-memory-os search "AI and machine learning"
-memory-os search --semantic "人工智能应用"
+openclaw-memory-os search "AI and machine learning"
+openclaw-memory-os search --semantic "人工智能应用"
 
 # Timeline
-memory-os timeline --date 2024-03-01
-memory-os timeline --range "last 7 days"
+openclaw-memory-os timeline --date 2024-03-01
+openclaw-memory-os timeline --range "last 7 days"
 
 # Status
-memory-os status
+openclaw-memory-os status
 ```
 
 ### Advanced Operations
 
 ```bash
 # Graph operations (planned)
-memory-os graph explore --topic "AI"
-memory-os graph stats
+openclaw-memory-os graph explore --topic "AI"
+openclaw-memory-os graph stats
 
 # Maintenance
-memory-os rebuild
-memory-os optimize
-memory-os export ~/backup.json
+openclaw-memory-os rebuild
+openclaw-memory-os optimize
+openclaw-memory-os export ~/backup.json
 ```
 
 ---
@@ -282,13 +282,13 @@ memory-os export ~/backup.json
 
 ```bash
 # Import all notes
-memory-os collect --source ~/Documents/Notes
+openclaw-memory-os collect --source ~/Documents/Notes
 
 # Search for specific topics
-memory-os search --semantic "machine learning algorithms"
+openclaw-memory-os search --semantic "machine learning algorithms"
 
 # View knowledge graph (planned)
-memory-os graph explore
+openclaw-memory-os graph explore
 ```
 
 ### 2. Agent Long-term Memory
@@ -327,13 +327,13 @@ class MemoryAgent {
 
 ```bash
 # Collect code repos
-memory-os collect --code ~/projects
+openclaw-memory-os collect --code ~/projects
 
 # Search code patterns
-memory-os search "authentication implementation"
+openclaw-memory-os search "authentication implementation"
 
 # Timeline of changes
-memory-os timeline --type code --range "last month"
+openclaw-memory-os timeline --type code --range "last month"
 ```
 
 ---
@@ -460,7 +460,7 @@ This skill enables:
 
 ## 🔗 Links
 
-- **ClawHub**: https://clawhub.ai/ZhenStaff/memory-os
+- **ClawHub**: https://clawhub.ai/ZhenStaff/openclaw-memory-os
 - **npm**: https://www.npmjs.com/package/openclaw-memory-os
 - **GitHub**: https://github.com/ZhenRobotics/openclaw-memory-os
 - **Issues**: https://github.com/ZhenRobotics/openclaw-memory-os/issues
@@ -482,5 +482,5 @@ MIT License
 **Memory-OS - Digital Immortality Through Memory**
 
 Version: 0.1.0
-Skill Name: memory-os
+Skill Name: openclaw-memory-os
 Package Name: openclaw-memory-os
