@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Memory-OS data
+.memory-os/
+*.memory.db
+*.memory.json
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Old project files (to be removed)
+audio/
+public/
+scripts/
+remotion.config.ts
+openclaw-video/
+openclaw-skill/
+agents/video-*.ts
+agents/video-*.sh
+agents/video-*.json
+agents/tools.ts
+agents/test-agent.sh
+*.md.old
