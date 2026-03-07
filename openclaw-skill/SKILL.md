@@ -1,5 +1,5 @@
 ---
-name: memory-os
+name: openclaw-memory-os
 description: OpenClaw Memory-OS - Digital immortality service and cognitive continuity infrastructure for personal memory management
 tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, knowledge-graph, semantic-search, agent-memory, long-term-memory, openclaw]
 ---
