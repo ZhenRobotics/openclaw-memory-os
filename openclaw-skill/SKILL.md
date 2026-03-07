@@ -4,13 +4,15 @@ description: OpenClaw Memory-OS - Digital immortality service and cognitive cont
 tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, knowledge-graph, semantic-search, agent-memory, long-term-memory, openclaw]
 ---
 
-# 🧠 Memory-OS Skill
+# OpenClaw Memory-OS
 
-OpenClaw Memory-OS - 数字永生服务 | 认知延续基础设施
+Digital immortality service and cognitive continuity infrastructure
 
 AI-powered personal memory management system for capturing, storing, and intelligently retrieving your digital memories.
 
-## 📦 Installation
+数字永生服务 | 认知延续基础设施
+
+## Installation
 
 ### Step 1: Install via ClawHub (Recommended)
 
@@ -52,7 +54,7 @@ openclaw-memory-os status
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### When to Use This Skill
 
@@ -78,7 +80,7 @@ openclaw-memory-os status
 
 ---
 
-## 🎯 Core Features
+## Core Features
 
 Complete memory management system:
 
@@ -93,7 +95,7 @@ Complete memory management system:
 
 ---
 
-## 💻 Agent Usage Guide
+## Agent Usage Guide
 
 ### Important Notes
 
@@ -237,7 +239,7 @@ async function handleConversation(userMessage: string) {
 
 ---
 
-## 📖 CLI Commands
+## CLI Commands
 
 ### Basic Operations
 
@@ -276,7 +278,7 @@ openclaw-memory-os export ~/backup.json
 
 ---
 
-## 🎨 Use Cases
+## Use Cases
 
 ### 1. Personal Knowledge Base
 
@@ -338,7 +340,7 @@ openclaw-memory-os timeline --type code --range "last month"
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Memory-OS stores config in `~/.memory-os/config.json`:
 
@@ -366,7 +368,7 @@ Memory-OS stores config in `~/.memory-os/config.json`:
 
 ---
 
-## 🔧 Development
+## Development
 
 ### Project Structure
 
@@ -413,7 +415,7 @@ export class CustomCollector extends BaseCollector {
 
 ---
 
-## 📊 Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────┐
@@ -435,7 +437,7 @@ See [ARCHITECTURE.md](https://github.com/ZhenRobotics/openclaw-memory-os/blob/ma
 
 ---
 
-## 🎯 Skill Capabilities
+## Skill Capabilities
 
 This skill enables:
 
@@ -450,7 +452,7 @@ This skill enables:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 - [README](https://github.com/ZhenRobotics/openclaw-memory-os#readme) - Complete guide
 - [Architecture](https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/ARCHITECTURE.md) - System design
@@ -458,7 +460,7 @@ This skill enables:
 
 ---
 
-## 🔗 Links
+## Links
 
 - **ClawHub**: https://clawhub.ai/ZhenStaff/openclaw-memory-os
 - **npm**: https://www.npmjs.com/package/openclaw-memory-os
@@ -467,13 +469,13 @@ This skill enables:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 OpenClaw Memory-OS is open source. Contributions welcome!
 
 ---
 
-## 📄 License
+## License
 
 MIT License
 
