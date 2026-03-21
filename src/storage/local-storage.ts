@@ -123,11 +123,8 @@ export class LocalStorage {
   }
 
   async close(): Promise<void> {
-    // Save index one last time
+    // Save index one last time (before clearing cache)
     await this.saveIndex();
-
-    // Clear cache
-    this.memoryCache.clear();
 
     console.log('LocalStorage closed');
   }
@@ -175,10 +172,8 @@ export class LocalStorage {
   }
 
   private async updateIndex(memory: Memory): Promise<void> {
-    // Index is maintained in memory, save periodically
-    if (this.memoryCache.size % 10 === 0) {
-      await this.saveIndex();
-    }
+    // Save index immediately to ensure persistence
+    await this.saveIndex();
   }
 
   private async removeFromIndex(id: string): Promise<void> {

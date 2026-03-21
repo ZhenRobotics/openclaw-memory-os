@@ -125,10 +125,8 @@ class LocalStorage {
         }
     }
     async close() {
-        // Save index one last time
+        // Save index one last time (before clearing cache)
         await this.saveIndex();
-        // Clear cache
-        this.memoryCache.clear();
         console.log('LocalStorage closed');
     }
     // ============================================================================
@@ -164,10 +162,8 @@ class LocalStorage {
         await fs.writeFile(this.indexPath, JSON.stringify(index, null, 2), 'utf-8');
     }
     async updateIndex(memory) {
-        // Index is maintained in memory, save periodically
-        if (this.memoryCache.size % 10 === 0) {
-            await this.saveIndex();
-        }
+        // Save index immediately to ensure persistence
+        await this.saveIndex();
     }
     async removeFromIndex(id) {
         this.memoryCache.delete(id);

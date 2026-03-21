@@ -177,8 +177,9 @@ export enum StorageBackend {
 export interface StorageStats {
   totalMemories: number;
   byType: Record<MemoryType, number>;
-  diskUsage: number;
-  lastUpdate: Date;
+  bySource?: Record<string, number>;
+  diskUsage?: number;
+  lastUpdate?: Date;
 }
 
 // ============================================================================

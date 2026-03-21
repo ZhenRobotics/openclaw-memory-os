@@ -207,8 +207,12 @@ program
     const stats = await memory.stats();
     console.log('Memory-OS Status:\n');
     console.log(`Total memories: ${stats.totalMemories}`);
-    console.log(`Disk usage: ${(stats.diskUsage / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`Last update: ${stats.lastUpdate.toLocaleString()}`);
+    if (stats.diskUsage !== undefined) {
+        console.log(`Disk usage: ${(stats.diskUsage / 1024 / 1024).toFixed(2)} MB`);
+    }
+    if (stats.lastUpdate) {
+        console.log(`Last update: ${stats.lastUpdate.toLocaleString()}`);
+    }
     console.log('\nBy type:');
     Object.entries(stats.byType).forEach(([type, count]) => {
         console.log(`  ${type}: ${count}`);

@@ -58,7 +58,9 @@ export class MemoryOS extends EventEmitter {
   }
 
   private async initStorage(): Promise<void> {
-    // TODO: Initialize storage based on config
+    const { LocalStorage } = await import('../storage/local-storage');
+    this.storage = new LocalStorage(this.config.storage);
+    await this.storage.init();
     console.log('Storage initialized');
   }
 
@@ -152,12 +154,52 @@ export class MemoryOS extends EventEmitter {
   async search(query: SearchQuery): Promise<SearchResult[]> {
     this.ensureInitialized();
 
-    // TODO: Implement search logic
-    // - Keyword search
-    // - Semantic search (if embedding enabled)
-    // - Filter by type, tags, etc.
+    // Get all memories
+    const allMemories = await this.storage.list();
 
-    return [];
+    // Filter memories based on query
+    const filtered = allMemories.filter((memory: Memory) => {
+      // Type filter
+      if (query.type && memory.type !== query.type) {
+        return false;
+      }
+
+      // Keyword search - search in content
+      if (query.query) {
+        const contentStr = typeof memory.content === 'string'
+          ? memory.content
+          : JSON.stringify(memory.content);
+
+        if (!contentStr.toLowerCase().includes(query.query.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Tag filter (if SearchQuery had tags support)
+      const queryAny = query as any;
+      if (queryAny.tags && queryAny.tags.length > 0) {
+        const hasMatchingTag = queryAny.tags.some((tag: string) =>
+          memory.metadata.tags?.includes(tag)
+        );
+        if (!hasMatchingTag) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Apply limit and offset
+    const limit = query.limit || 10;
+    const offset = query.offset || 0;
+    const paginated = filtered.slice(offset, offset + limit);
+
+    // Convert to SearchResult format
+    return paginated.map((memory: Memory) => ({
+      memory,
+      score: 1.0, // Simple implementation - all matches get full score
+      highlights: []
+    }));
   }
 
   async searchSemantic(query: string, options?: {
@@ -276,11 +318,26 @@ export class MemoryOS extends EventEmitter {
   async stats(): Promise<StorageStats> {
     this.ensureInitialized();
 
-    // TODO: Gather statistics
+    const allMemories = await this.storage.list();
+
+    // Count by type
+    const byType: Record<string, number> = {};
+    allMemories.forEach((memory: Memory) => {
+      byType[memory.type] = (byType[memory.type] || 0) + 1;
+    });
+
+    // Count by source
+    const bySource: Record<string, number> = {};
+    allMemories.forEach((memory: Memory) => {
+      const source = memory.metadata.source || 'unknown';
+      bySource[source] = (bySource[source] || 0) + 1;
+    });
+
     return {
-      totalMemories: 0,
-      byType: {} as Record<MemoryType, number>,
-      diskUsage: 0,
+      totalMemories: allMemories.length,
+      byType: byType as Record<MemoryType, number>,
+      bySource,
+      diskUsage: 0, // TODO: Calculate actual disk usage
       lastUpdate: new Date(),
     };
   }
@@ -348,9 +405,13 @@ export class MemoryOS extends EventEmitter {
   }
 
   private mergeConfig(config: Partial<MemoryOSConfig>): MemoryOSConfig {
+    // Support both 'storePath' shorthand and full 'storage' config
+    const configAny = config as any;
+    const storagePath = configAny.storePath || config.storage?.path || '~/.memory-os/data';
+
     return {
       storage: {
-        path: '~/.memory-os/data',
+        path: storagePath,
         backend: 'local' as any,
         ...config.storage,
       },
