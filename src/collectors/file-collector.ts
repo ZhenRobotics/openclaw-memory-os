@@ -6,8 +6,9 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { BaseCollector } from './base-collector';
-import { CollectResult, MemoryType } from '../core/types';
+import { CollectResult, MemoryType, Memory } from '../core/types';
 
 export class FileCollector extends BaseCollector {
   private readonly supportedExtensions = [
@@ -109,26 +110,30 @@ export class FileCollector extends BaseCollector {
     return files;
   }
 
-  private async collectFile(filePath: string): Promise<any> {
+  private async collectFile(filePath: string): Promise<Partial<Memory>> {
     const stat = await fs.stat(filePath);
     const content = await fs.readFile(filePath, 'utf-8');
 
     const ext = path.extname(filePath);
     const filename = path.basename(filePath);
 
-    return this.createMemory(
-      {
-        filename,
-        path: filePath,
-        content,
-        size: stat.size,
-      },
-      {
-        source: filePath,
+    // Determine memory type based on file extension
+    const codeExtensions = ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cpp', '.c'];
+    const memoryType = codeExtensions.includes(ext) ? MemoryType.CODE : MemoryType.TEXT;
+
+    // Return Memory object directly with correct structure
+    return {
+      type: memoryType,
+      content: content,  // Content as direct string
+      metadata: {
+        source: 'file-collector',
         timestamp: stat.mtime,
-        tags: [ext.slice(1), 'file'],
+        tags: [ext.slice(1), 'imported'],
         context: path.dirname(filePath),
-      }
-    );
+        filename,
+        filePath,
+        fileSize: stat.size,
+      },
+    };
   }
 }

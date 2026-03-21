@@ -129,17 +129,23 @@ class FileCollector extends base_collector_1.BaseCollector {
         const content = await fs.readFile(filePath, 'utf-8');
         const ext = path.extname(filePath);
         const filename = path.basename(filePath);
-        return this.createMemory({
-            filename,
-            path: filePath,
-            content,
-            size: stat.size,
-        }, {
-            source: filePath,
-            timestamp: stat.mtime,
-            tags: [ext.slice(1), 'file'],
-            context: path.dirname(filePath),
-        });
+        // Determine memory type based on file extension
+        const codeExtensions = ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cpp', '.c'];
+        const memoryType = codeExtensions.includes(ext) ? types_1.MemoryType.CODE : types_1.MemoryType.TEXT;
+        // Return Memory object directly with correct structure
+        return {
+            type: memoryType,
+            content: content, // Content as direct string
+            metadata: {
+                source: 'file-collector',
+                timestamp: stat.mtime,
+                tags: [ext.slice(1), 'imported'],
+                context: path.dirname(filePath),
+                filename,
+                filePath,
+                fileSize: stat.size,
+            },
+        };
     }
 }
 exports.FileCollector = FileCollector;

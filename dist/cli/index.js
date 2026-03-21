@@ -5,6 +5,39 @@
  *
  * 命令行工具入口
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const memory_os_1 = require("../core/memory-os");
@@ -60,32 +93,59 @@ program
     .command('collect')
     .description('采集记忆')
     .option('-s, --source <path>', '源路径')
-    .option('-t, --type <type>', '记忆类型')
-    .option('--chat <file>', '聊天记录文件')
-    .option('--code <repo>', '代码仓库')
-    .option('--auto', '自动采集')
+    .option('-r, --recursive', '递归扫描子目录', true)
+    .option('--exclude <patterns...>', '排除模式')
     .action(async (options) => {
-    console.log('Collecting memories...');
-    const memory = new memory_os_1.MemoryOS({});
+    if (!options.source) {
+        console.error('❌ 错误: 必须指定 --source 参数');
+        console.log('用法: openclaw-memory-os collect --source <path>');
+        process.exit(1);
+    }
+    console.log('🚀 开始采集记忆...\n');
+    const memory = new memory_os_1.MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
-    if (options.source) {
-        console.log(`Collecting from: ${options.source}`);
-        // TODO: Collect from source
+    try {
+        const { FileCollector } = await Promise.resolve().then(() => __importStar(require('../collectors/file-collector')));
+        const collector = new FileCollector();
+        // Collect files
+        const result = await collector.collect(options.source, {
+            recursive: options.recursive,
+            exclude: options.exclude,
+        });
+        console.log('\n💾 开始导入到 Memory-OS...\n');
+        let imported = 0;
+        let failed = 0;
+        for (let i = 0; i < result.memories.length; i++) {
+            const mem = result.memories[i];
+            try {
+                await memory.collect({
+                    type: mem.type,
+                    content: mem.content,
+                    metadata: mem.metadata,
+                });
+                imported++;
+                // Progress display
+                const percent = ((i + 1) / result.memories.length * 100).toFixed(1);
+                const fileName = mem.metadata?.filename || 'unknown';
+                process.stdout.write(`\r  导入进度: ${i + 1}/${result.memories.length} (${percent}%) - ${fileName}`.padEnd(80));
+            }
+            catch (error) {
+                failed++;
+                console.error(`\n  ❌ 导入失败: ${mem.metadata?.filename}`);
+            }
+        }
+        console.log('\n\n✅ 采集完成！');
+        console.log(`   成功导入: ${imported}`);
+        console.log(`   导入失败: ${failed}`);
+        console.log(`   总计文件: ${result.collected}`);
     }
-    if (options.chat) {
-        console.log(`Collecting chat from: ${options.chat}`);
-        // TODO: Collect chat
+    catch (error) {
+        console.error('❌ 采集失败:', error.message);
+        process.exit(1);
     }
-    if (options.code) {
-        console.log(`Collecting code from: ${options.code}`);
-        // TODO: Collect code
+    finally {
+        await memory.close();
     }
-    if (options.auto) {
-        console.log('Auto collecting...');
-        // TODO: Auto collect
-    }
-    await memory.close();
-    console.log('✓ Collection complete');
 });
 // ============================================================================
 // Search Commands
@@ -99,7 +159,7 @@ program
     .option('--filter <filter>', '过滤条件')
     .action(async (query, options) => {
     console.log(`Searching for: ${query}`);
-    const memory = new memory_os_1.MemoryOS({});
+    const memory = new memory_os_1.MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
     const results = await memory.search({
         query,
@@ -202,7 +262,7 @@ program
     .command('status')
     .description('查看状态')
     .action(async () => {
-    const memory = new memory_os_1.MemoryOS({});
+    const memory = new memory_os_1.MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
     const stats = await memory.stats();
     console.log('Memory-OS Status:\n');

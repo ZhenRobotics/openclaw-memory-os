@@ -73,38 +73,65 @@ program
   .command('collect')
   .description('采集记忆')
   .option('-s, --source <path>', '源路径')
-  .option('-t, --type <type>', '记忆类型')
-  .option('--chat <file>', '聊天记录文件')
-  .option('--code <repo>', '代码仓库')
-  .option('--auto', '自动采集')
+  .option('-r, --recursive', '递归扫描子目录', true)
+  .option('--exclude <patterns...>', '排除模式')
   .action(async (options) => {
-    console.log('Collecting memories...');
+    if (!options.source) {
+      console.error('❌ 错误: 必须指定 --source 参数');
+      console.log('用法: openclaw-memory-os collect --source <path>');
+      process.exit(1);
+    }
 
-    const memory = new MemoryOS({});
+    console.log('🚀 开始采集记忆...\n');
+
+    const memory = new MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
 
-    if (options.source) {
-      console.log(`Collecting from: ${options.source}`);
-      // TODO: Collect from source
-    }
+    try {
+      const { FileCollector } = await import('../collectors/file-collector');
+      const collector = new FileCollector();
 
-    if (options.chat) {
-      console.log(`Collecting chat from: ${options.chat}`);
-      // TODO: Collect chat
-    }
+      // Collect files
+      const result = await collector.collect(options.source, {
+        recursive: options.recursive,
+        exclude: options.exclude,
+      });
 
-    if (options.code) {
-      console.log(`Collecting code from: ${options.code}`);
-      // TODO: Collect code
-    }
+      console.log('\n💾 开始导入到 Memory-OS...\n');
 
-    if (options.auto) {
-      console.log('Auto collecting...');
-      // TODO: Auto collect
-    }
+      let imported = 0;
+      let failed = 0;
 
-    await memory.close();
-    console.log('✓ Collection complete');
+      for (let i = 0; i < result.memories.length; i++) {
+        const mem = result.memories[i];
+        try {
+          await memory.collect({
+            type: mem.type,
+            content: mem.content,
+            metadata: mem.metadata,
+          });
+          imported++;
+
+          // Progress display
+          const percent = ((i + 1) / result.memories.length * 100).toFixed(1);
+          const fileName = mem.metadata?.filename || 'unknown';
+          process.stdout.write(`\r  导入进度: ${i + 1}/${result.memories.length} (${percent}%) - ${fileName}`.padEnd(80));
+        } catch (error) {
+          failed++;
+          console.error(`\n  ❌ 导入失败: ${mem.metadata?.filename}`);
+        }
+      }
+
+      console.log('\n\n✅ 采集完成！');
+      console.log(`   成功导入: ${imported}`);
+      console.log(`   导入失败: ${failed}`);
+      console.log(`   总计文件: ${result.collected}`);
+    } catch (error) {
+      console.error('❌ 采集失败:', (error as Error).message);
+      process.exit(1);
+    } finally {
+      await memory.close();
+    }
   });
 
 // ============================================================================
@@ -121,7 +148,7 @@ program
   .action(async (query, options) => {
     console.log(`Searching for: ${query}`);
 
-    const memory = new MemoryOS({});
+    const memory = new MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
 
     const results = await memory.search({
@@ -243,7 +270,7 @@ program
   .command('status')
   .description('查看状态')
   .action(async () => {
-    const memory = new MemoryOS({});
+    const memory = new MemoryOS({ storePath: '~/.memory-os' });
     await memory.init();
 
     const stats = await memory.stats();
