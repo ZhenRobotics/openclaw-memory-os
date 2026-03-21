@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-03-21
+
+### Added
+
+- **Functional CLI Collect Command** - Users can now batch import files from directories
+  - `openclaw-memory-os collect --source <path>` is now fully functional
+  - Supports recursive directory scanning
+  - Displays real-time progress with filename
+  - Automatic file type detection (TEXT vs CODE)
+  - Integration with FileCollector for batch processing
+
+### Fixed
+
+- **FileCollector Data Format** - Content now stored as direct strings instead of nested objects
+  - Enables proper search functionality on imported files
+  - Files are now searchable by their actual content
+  - Metadata properly includes filename, filepath, and filesize
+
+- **Storage Path Consistency** - Unified storage path across all CLI commands
+  - All commands now use `~/.memory-os` as default storage path
+  - Search command correctly finds memories collected via collect command
+  - Status command displays accurate statistics
+
+- **Progress Display** - Filename now shown correctly during import
+  - Changed from "unknown" to actual filename in progress indicator
+  - Better user feedback during batch operations
+
+### Verified
+
+- Comprehensive test suite (test-cli-collect.sh) with 8/8 tests passing
+  - File collection (4 files including nested directories)
+  - Search functionality (Chinese and English keywords)
+  - Status command validation
+  - Data format verification
+  - Recursive directory scanning
+
 ## [0.1.0] - 2026-03-08
 
 ### Added - Initial Release
@@ -167,4 +203,5 @@ Next releases planned:
 
 **Memory-OS - Digital Immortality Through Memory**
 
+[0.1.1]: https://github.com/ZhenRobotics/openclaw-memory-os/releases/tag/v0.1.1
 [0.1.0]: https://github.com/ZhenRobotics/openclaw-memory-os/releases/tag/v0.1.0

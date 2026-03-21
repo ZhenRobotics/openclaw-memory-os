@@ -2,20 +2,20 @@
 name: openclaw-memory-os
 description: OpenClaw Memory-OS - Digital immortality service and cognitive continuity infrastructure for personal memory management | 数字永生服务与认知延续基础设施
 tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, knowledge-graph, semantic-search, agent-memory, long-term-memory, openclaw]
-version: 0.1.0
+version: 0.1.1
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
 homepage: https://github.com/ZhenRobotics/openclaw-memory-os
 documentation: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/README.md
 
-# v0.1.0 MVP - Local-Only, No External APIs Required
+# v0.1.1 - Functional CLI with Batch File Import
 requires:
   packages:
     - name: openclaw-memory-os
       source: npm
-      version: ">=0.1.0"
+      version: ">=0.1.1"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
-      verified_commit: 791aa1d
+      verified_commit: 749ddf3
   tools:
     - node>=18
     - npm
@@ -37,22 +37,25 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## ⚠️ Security & Privacy Notice (v0.1.0 MVP)
+## ⚠️ Security & Privacy Notice (v0.1.1)
 
 **Current Version Status:**
-- ✅ **100% Local Storage** - All data stored in `~/.memory-os/data/`
+- ✅ **100% Local Storage** - All data stored in `~/.memory-os/`
 - ✅ **No External API Calls** - Zero network activity
 - ✅ **No API Keys Required** - Works completely offline
 - ✅ **Manual Collection Only** - No automatic background scanning
+- ✅ **Functional CLI** - Batch file import now working
 - ⚠️ **Future Features Planned** - Semantic search and LLM features NOT yet implemented
 
-**What v0.1.0 Does:**
+**What v0.1.1 Does:**
 - ✅ Local file-based memory storage (JSON)
 - ✅ Basic keyword search (local)
-- ✅ File collection (manual trigger only)
+- ✅ **NEW: Functional file collection CLI** (batch import from directories)
+- ✅ Recursive directory scanning
+- ✅ Automatic file type detection (TEXT vs CODE)
 - ✅ Timeline and stats (local computation)
 
-**What v0.1.0 Does NOT Do:**
+**What v0.1.1 Does NOT Do:**
 - ❌ No AI embeddings
 - ❌ No LLM calls
 - ❌ No external API usage
@@ -60,7 +63,7 @@ security:
 - ❌ No semantic search (planned for v0.2.0+)
 
 **Data Control:**
-- Your data: `~/.memory-os/data/`
+- Your data: `~/.memory-os/`
 - You control: What to collect, when to collect
 - You own: All data files (JSON format, human-readable)
 - You delete: `rm -rf ~/.memory-os/` removes everything
@@ -112,19 +115,29 @@ openclaw-memory-os config set owner.name "Your Name"
 openclaw-memory-os config set owner.email "your@email.com"
 ```
 
-### Step 4: Verify Installation
+### Step 4: Collect Your First Memories
 
 ```bash
+# Create test directory with sample files
+mkdir -p ~/test-memories
+echo "My first note" > ~/test-memories/note1.txt
+echo "# Learning Log" > ~/test-memories/log.md
+
+# Collect memories from directory
+openclaw-memory-os collect --source ~/test-memories/
+
+# Verify collection
 openclaw-memory-os status
+openclaw-memory-os search "first"
 ```
 
 **Security Check:**
 ```bash
 # Verify data location
-ls -la ~/.memory-os/data/
+ls -la ~/.memory-os/memories/
 
-# Inspect configuration
-cat ~/.memory-os/config.json
+# Inspect collected memories
+cat ~/.memory-os/memories/*.json | head -20
 ```
 
 ---
@@ -158,10 +171,12 @@ Keywords: `memory`, `remember`, `recall`, `记忆`, `回忆`, `记住`, `保存`
 
 ## Core Features
 
-**v0.1.0 MVP (Current):**
+**v0.1.1 (Current):**
 
-- ✅ **Local Storage** - JSON-based, in `~/.memory-os/data/`
-- ✅ **Manual Collection** - From specific files/directories
+- ✅ **Local Storage** - JSON-based, in `~/.memory-os/`
+- ✅ **Batch File Collection** - Import entire directories with progress display
+- ✅ **Automatic Type Detection** - Distinguishes CODE from TEXT files
+- ✅ **Recursive Scanning** - Processes subdirectories automatically
 - ✅ **Basic Search** - Keyword and tag-based (local)
 - ✅ **Timeline** - Temporal tracking of memories
 - ✅ **Privacy-First** - No cloud, no external APIs
@@ -183,19 +198,29 @@ Keywords: `memory`, `remember`, `recall`, `记忆`, `回忆`, `记住`, `保存`
 # Install in test environment first
 npm install -g openclaw-memory-os
 
-# Initialize with test data
+# Initialize
+openclaw-memory-os init
+
+# Create test data
 mkdir ~/test-memories
-openclaw-memory-os collect --source ~/test-memories
+echo "Test note 1" > ~/test-memories/note1.txt
+echo "Test note 2" > ~/test-memories/note2.md
+
+# Collect from test directory
+openclaw-memory-os collect --source ~/test-memories/
 ```
 
 ### 2. Review Collected Data
 
 ```bash
 # Check what was collected
-ls ~/.memory-os/data/memories/
+ls ~/.memory-os/memories/
 
 # Read individual memory files
-cat ~/.memory-os/data/memories/*.json | jq '.'
+cat ~/.memory-os/memories/*.json | jq '.'
+
+# View statistics
+openclaw-memory-os status
 ```
 
 ### 3. Control Collection Scope
@@ -204,8 +229,11 @@ cat ~/.memory-os/data/memories/*.json | jq '.'
 # ✅ Good: Specific directory
 openclaw-memory-os collect --source ~/my-project-notes/
 
+# ✅ Good: With exclusions
+openclaw-memory-os collect --source ~/Documents/ --exclude node_modules .git dist
+
 # ⚠️ Caution: Broad scope
-openclaw-memory-os collect --source ~/Documents
+openclaw-memory-os collect --source ~/Documents/
 
 # ❌ Dangerous: System-wide
 openclaw-memory-os collect --source ~/  # DON'T DO THIS
@@ -215,10 +243,13 @@ openclaw-memory-os collect --source ~/  # DON'T DO THIS
 
 ```bash
 # View all memories
-openclaw-memory-os search --all
+openclaw-memory-os status
+
+# Search for specific content
+openclaw-memory-os search "keyword"
 
 # Delete specific memory
-rm ~/.memory-os/data/memories/<memory-id>.json
+rm ~/.memory-os/memories/<memory-id>.json
 
 # Complete removal
 rm -rf ~/.memory-os/
@@ -227,9 +258,9 @@ rm -rf ~/.memory-os/
 ### 5. Network Traffic Verification
 
 ```bash
-# v0.1.0 should have ZERO network traffic
+# v0.1.1 should have ZERO network traffic
 # Monitor with:
-tcpdump -i any port 443 or port 80 &
+sudo tcpdump -i any port 443 or port 80 &
 openclaw-memory-os collect --source ~/test-data/
 # Should see NO external connections
 ```
@@ -240,11 +271,12 @@ openclaw-memory-os collect --source ~/test-data/
 
 ### Important Notes
 
-**CRITICAL for v0.1.0**:
+**CRITICAL for v0.1.1**:
 - This version is **local-only**
 - No AI embeddings or LLM features active
 - All operations happen on your machine
 - No credentials needed
+- CLI collect command is now fully functional
 
 **Package Name**: When importing, use `openclaw-memory-os`:
 ```typescript
@@ -313,17 +345,18 @@ const timeline = await memory.timeline({
 # Initialize (creates local directory)
 openclaw-memory-os init
 
-# Collect from specific directory
+# Collect from specific directory (NEW in v0.1.1 - fully functional)
 openclaw-memory-os collect --source ~/my-notes/
+
+# Collect with options
+openclaw-memory-os collect --source ~/Documents/ --exclude node_modules .git
+openclaw-memory-os collect --source ~/code/ --recursive
 
 # Search locally
 openclaw-memory-os search "keyword"
-openclaw-memory-os search --tags "tag1,tag2"
+openclaw-memory-os search --type text "programming notes"
 
-# Timeline (local)
-openclaw-memory-os timeline --date 2024-03-01
-
-# Status (local)
+# Status (shows total memories, type breakdown)
 openclaw-memory-os status
 ```
 
@@ -384,13 +417,14 @@ rm -rf ~/.memory-os/
 
 ---
 
-## Known Limitations (v0.1.0)
+## Known Limitations (v0.1.1)
 
 1. **No AI Features** - Semantic search and LLM features not implemented
-2. **Basic Search Only** - Simple keyword/tag matching
+2. **Basic Search Only** - Simple keyword/tag matching (but works well with collected files)
 3. **Manual Collection** - No automatic background scanning
 4. **No Encryption** - Data stored as plain JSON (can enable manually)
 5. **No Multi-user** - Single-user local storage only
+6. **Limited Config Commands** - Config management partially implemented
 
 ---
 
@@ -543,6 +577,6 @@ MIT-0 License
 
 ---
 
-**Memory-OS v0.1.0** - 100% Local, 0% Cloud, Your Data, Your Control
+**Memory-OS v0.1.1** - 100% Local, 0% Cloud, Your Data, Your Control
 
-Version: 0.1.0 | Verified Commit: 023de51 | Status: Production-Ready for Local Use
+Version: 0.1.1 | Verified Commit: 749ddf3 | Status: Production-Ready with Functional CLI

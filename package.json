@@ -1,6 +1,6 @@
 {
   "name": "openclaw-memory-os",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "数字永生服务 | 认知延续基础设施 - Personal memory management system for digital immortality",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,15 +2,17 @@
 
 **English** | [中文](#openclaw-memory-os-中文版)
 
-## ⚠️ Security & Privacy Notice (v0.1.0 MVP)
+## ⚠️ Security & Privacy Notice (v0.1.1)
 
-**Current Version:** 0.1.0
-**Status:** 100% Local, Zero External APIs
+**Current Version:** 0.1.1
+**Status:** 100% Local, Zero External APIs, Functional CLI
 
 **What This Version Does:**
 - ✅ Local file-based memory storage (JSON format)
 - ✅ Basic keyword search (all local computation)
-- ✅ Manual file collection (user-triggered only)
+- ✅ **Functional batch file collection** (user-triggered CLI)
+- ✅ Recursive directory scanning with progress display
+- ✅ Automatic file type detection (TEXT vs CODE)
 - ✅ Timeline and statistics (local only)
 
 **What This Version Does NOT Do:**
@@ -21,7 +23,7 @@
 - ❌ No API keys required
 
 **Your Data:**
-- Stored: `~/.memory-os/data/` (local JSON files)
+- Stored: `~/.memory-os/` (local JSON files)
 - Control: You decide what to collect and when
 - Ownership: You own all data files
 - Deletion: `rm -rf ~/.memory-os/` removes everything
@@ -30,7 +32,7 @@
 1. Test in sandbox/VM first
 2. Review files before collection
 3. Use specific paths (not broad patterns like `~/Documents`)
-4. Inspect collected data in `~/.memory-os/data/memories/`
+4. Inspect collected data in `~/.memory-os/memories/`
 5. Monitor network activity (should be zero)
 
 See full security details: [SECURITY.md](https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/SECURITY.md)
@@ -41,13 +43,16 @@ See full security details: [SECURITY.md](https://github.com/ZhenRobotics/opencla
 
 Memory-OS is an open-source personal memory management system designed for digital immortality and cognitive continuity. It can collect, store, retrieve, and intelligently process all your digital memories, build personal knowledge graphs, and provide the ability to have conversations with your digitized "self".
 
-**v0.1.0 MVP Focus:** Local storage and basic memory management. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
+**v0.1.1 Focus:** Functional CLI for batch file collection with local storage. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
 
 ## Core Features
 
-**Current (v0.1.0):**
+**Current (v0.1.1):**
 - **Local Storage** - JSON-based file storage, no cloud dependency
-- **Manual Collection** - From specified files and directories
+- **Batch File Collection** - Import entire directories with one command
+- **Recursive Scanning** - Automatically processes subdirectories
+- **Type Detection** - Distinguishes CODE from TEXT files automatically
+- **Real-time Progress** - Shows filenames during import
 - **Basic Search** - Keyword and tag-based filtering (local)
 - **Timeline Tracking** - Temporal organization of memories
 - **Privacy-First** - All data stays on your machine
@@ -91,28 +96,30 @@ openclaw-memory-os config set owner.email "your@email.com"
 # Collect memories from specific directory
 openclaw-memory-os collect --source ~/my-notes/
 
-# Search memories (local keyword search)
+# Collect with options
+openclaw-memory-os collect --source ~/Documents/ --exclude node_modules .git
+
+# Search collected memories (local keyword search)
 openclaw-memory-os search "AI discussions"
-openclaw-memory-os search --tags "learning,tech"
+openclaw-memory-os search --type code "function"
 
-# Timeline query (local)
-openclaw-memory-os timeline --date 2024-03-01
-openclaw-memory-os timeline --range "last 7 days"
-
-# View statistics (local computation)
-openclaw-memory-os stats
+# View statistics
+openclaw-memory-os status
 ```
 
 ### Security Verification
 
 ```bash
 # Verify data location
-ls -la ~/.memory-os/data/
+ls -la ~/.memory-os/memories/
 
 # Inspect collected memories
-cat ~/.memory-os/data/memories/*.json | jq '.'
+cat ~/.memory-os/memories/*.json | jq '.'
 
-# Monitor network activity (should be ZERO for v0.1.0)
+# View collection statistics
+openclaw-memory-os status
+
+# Monitor network activity (should be ZERO for v0.1.1)
 # In one terminal:
 sudo tcpdump -i any port 443 or port 80
 
@@ -157,12 +164,13 @@ Collect memories from different data sources:
 
 ### Storage Layer
 
-**v0.1.0:** Local file system storage
+**v0.1.1:** Local file system storage
 
-- JSON files in `~/.memory-os/data/memories/`
+- JSON files in `~/.memory-os/memories/`
 - Index file for fast lookup
 - Human-readable format
 - No encryption (can be added manually)
+- Content stored as searchable strings
 
 **Future versions:** Optional vector storage, graph storage, cloud sync.
 
@@ -257,13 +265,15 @@ MIT-0 License
 
 ## ⚠️ 安全与隐私声明（v0.1.0 MVP 版本）
 
-**当前版本：** 0.1.0
-**状态：** 100% 本地，零外部 API
+**当前版本：** 0.1.1
+**状态：** 100% 本地，零外部 API，功能完整的 CLI
 
 **此版本功能：**
 - ✅ 本地文件记忆存储（JSON 格式）
 - ✅ 基本关键词搜索（全部本地计算）
-- ✅ 手动文件采集（用户触发）
+- ✅ **批量文件采集功能**（用户触发的 CLI）
+- ✅ 递归目录扫描并显示进度
+- ✅ 自动文件类型检测（TEXT vs CODE）
 - ✅ 时间线和统计（仅本地）
 
 **此版本不包含：**
@@ -274,7 +284,7 @@ MIT-0 License
 - ❌ 无需 API 密钥
 
 **您的数据：**
-- 存储位置：`~/.memory-os/data/`（本地 JSON 文件）
+- 存储位置：`~/.memory-os/`（本地 JSON 文件）
 - 控制权：您决定收集什么和何时收集
 - 所有权：您拥有所有数据文件
 - 删除方式：`rm -rf ~/.memory-os/` 删除所有内容
@@ -283,7 +293,7 @@ MIT-0 License
 1. 先在沙盒/虚拟机中测试
 2. 收集前检查文件
 3. 使用明确路径（不要用 `~/Documents` 等广泛模式）
-4. 检查收集的数据在 `~/.memory-os/data/memories/`
+4. 检查收集的数据在 `~/.memory-os/memories/`
 5. 监控网络活动（应该为零）
 
 详见完整安全说明：[SECURITY.md](https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/SECURITY.md)
@@ -294,7 +304,7 @@ MIT-0 License
 
 Memory-OS 是一个开源的个人记忆管理系统，旨在实现数字永生和认知延续。它能够采集、存储、检索和智能化处理你的所有数字记忆，构建个人知识图谱，并提供与数字化"自我"对话的能力。
 
-**v0.1.0 MVP 重点：** 本地存储和基本记忆管理。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
+**v0.1.1 重点：** 功能完整的 CLI 批量文件采集与本地存储。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
 
 ## 核心特性
 
@@ -343,7 +353,7 @@ MIT-0 License
 
 ---
 
-**Version:** 0.1.0
-**Verified Commit:** 023de51
+**Version:** 0.1.1
+**Verified Commit:** 749ddf3
 **Security Status:** Local-Only, Zero External APIs
-**Production Ready:** Yes (for local use with manual review)
+**Production Ready:** Yes (functional CLI for batch file import)
