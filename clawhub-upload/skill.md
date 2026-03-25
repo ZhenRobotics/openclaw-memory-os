@@ -15,7 +15,7 @@ requires:
       source: npm
       version: ">=0.1.2"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
-      verified_commit: TBD
+      verified_commit: 28a1a92
   tools:
     - node>=18
     - npm
@@ -653,4 +653,4 @@ MIT-0 License
 
 **Memory-OS v0.1.2** - 100% Local, 0% Cloud, Your Data, Your Control
 
-Version: 0.1.2 | Verified Commit: TBD | Status: Production-Ready with Conversation Memory
+Version: 0.1.2 | Verified Commit: 28a1a92 | Status: Production-Ready with Conversation Memory
