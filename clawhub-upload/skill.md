@@ -15,7 +15,7 @@ requires:
       source: npm
       version: ">=0.2.0-phase1"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
-      verified_commit: 102dcf4a3e52daae26f22870106664d654a54370
+      verified_commit: e7ccf875d6baebca0926111342e1f2f560d55fdb
   tools:
     - node>=18
     - npm
