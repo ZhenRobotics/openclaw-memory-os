@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-03-25
+
+### Added - Conversation Memory
+
+**🎉 Major Feature: Auto-trigger conversation memory extraction**
+
+- **MemoryExtractor Module** - Intelligent information extraction from conversations
+  - Extracts names, dates, events from natural language
+  - Supports Chinese and English trigger words
+  - Automatic entity recognition (姓名、日期、事件)
+  - Confidence scoring for extraction quality
+
+- **New CLI Command: `remember`** - Store information from conversations
+  - `openclaw-memory-os remember "记住我的名字：刘小容"`
+  - `openclaw-memory-os remember "Remember my name is Liu Xiaorong"`
+  - Auto-detects language (Chinese/English)
+  - Provides friendly confirmation messages
+
+- **AUTO-TRIGGER Support** - Works in conversation contexts
+  - Trigger keywords: 记住, 保存, remember, save, store
+  - Automatic extraction and storage
+  - No manual file operations needed
+  - Perfect for chat-based memory building
+
+### Enhanced
+
+- **ClawHub Integration** - Updated skill.md for auto-trigger usage
+  - Added conversation memory usage examples
+  - Documented trigger keywords
+  - Provided quick start guide
+
+### Fixed
+
+- **CLI Version Display** - Updated from 0.1.0 to 0.1.2
+- **TypeScript Strict Mode** - Fixed optional chaining issues
+
+### Technical Details
+
+**New Files**:
+- `src/conversation/memory-extractor.ts` - Core extraction logic (260+ lines)
+- `test-conversation-memory.sh` - Comprehensive test suite (250+ lines)
+
+**Modified Files**:
+- `src/cli/index.ts` - Added `remember` command
+- `clawhub-upload/skill.md` - Updated with conversation memory guide
+
+**Test Coverage**:
+- Chinese name extraction
+- English name extraction
+- Date recognition (multiple formats)
+- Event extraction
+- Complex multi-entity information
+- Trigger word detection
+- Memory storage integration
+
+### Migration from v0.1.1
+
+No breaking changes. All v0.1.1 features remain fully functional.
+
+**New capabilities**:
+```bash
+# Old way (still works)
+openclaw-memory-os collect --source ~/notes/
+
+# New way (conversation memory)
+openclaw-memory-os remember "记住重要信息"
+```
+
+**In conversation**:
+```
+User: 记住我的名字：刘小容
+Assistant: ✅ 已记住！姓名: 刘小容
+```
+
 ## [0.1.1] - 2026-03-21
 
 ### Added
@@ -203,5 +277,6 @@ Next releases planned:
 
 **Memory-OS - Digital Immortality Through Memory**
 
+[0.1.2]: https://github.com/ZhenRobotics/openclaw-memory-os/releases/tag/v0.1.2
 [0.1.1]: https://github.com/ZhenRobotics/openclaw-memory-os/releases/tag/v0.1.1
 [0.1.0]: https://github.com/ZhenRobotics/openclaw-memory-os/releases/tag/v0.1.0

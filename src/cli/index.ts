@@ -14,8 +14,8 @@ const program = new Command();
 
 program
   .name('openclaw-memory-os')
-  .description('数字永生服务 | 认知延续基础设施')
-  .version('0.1.0');
+  .description('数字永生服务 | 认知延续基础设施 - 对话记忆自动提取')
+  .version('0.1.2');
 
 // ============================================================================
 // Init Command
@@ -128,6 +128,61 @@ program
       console.log(`   总计文件: ${result.collected}`);
     } catch (error) {
       console.error('❌ 采集失败:', (error as Error).message);
+      process.exit(1);
+    } finally {
+      await memory.close();
+    }
+  });
+
+// ============================================================================
+// Remember Command (Conversation Memory)
+// ============================================================================
+
+program
+  .command('remember <text>')
+  .description('从对话中记住信息')
+  .alias('rm')
+  .action(async (text: string) => {
+    console.log('💭 分析对话内容...\n');
+
+    const memory = new MemoryOS({ storePath: '~/.memory-os' });
+    await memory.init();
+
+    try {
+      const { MemoryExtractor } = await import('../conversation/memory-extractor');
+      const extractor = new MemoryExtractor();
+
+      // Extract memory from conversation
+      const result = extractor.extract(text);
+
+      if (!result.shouldRemember) {
+        console.log('⚠️  未检测到记忆触发词');
+        console.log('提示: 使用 "记住..." 或 "remember..." 来触发记忆存储');
+        process.exit(0);
+      }
+
+      // Store the memory
+      await memory.collect({
+        type: result.memoryType,
+        content: result.content,
+        metadata: {
+          source: 'conversation',
+          trigger: result.metadata.trigger,
+          language: result.metadata.language,
+          confidence: result.metadata.confidence,
+          entities: result.extractedEntities,
+          tags: ['conversation', 'auto-extracted'],
+        },
+      });
+
+      // Display confirmation
+      console.log('✅ 记忆已保存！\n');
+      console.log(extractor.formatConfirmation(result));
+      console.log(`\n置信度: ${(result.metadata.confidence * 100).toFixed(0)}%`);
+      console.log(`语言: ${result.metadata.language === 'zh' ? '中文' : 'English'}`);
+      console.log(`类型: ${result.memoryType}`);
+    } catch (error) {
+      console.error('❌ 记忆存储失败:', (error as Error).message);
       process.exit(1);
     } finally {
       await memory.close();

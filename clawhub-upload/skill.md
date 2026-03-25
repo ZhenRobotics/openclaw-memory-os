@@ -1,21 +1,21 @@
 ---
 name: openclaw-memory-os
-description: OpenClaw Memory-OS - Digital immortality service and cognitive continuity infrastructure for personal memory management | 数字永生服务与认知延续基础设施
-tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, knowledge-graph, semantic-search, agent-memory, long-term-memory, openclaw]
-version: 0.1.1
+description: OpenClaw Memory-OS - Digital immortality service with conversation memory extraction | 数字永生服务与对话记忆自动提取
+tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-memory, auto-trigger, agent-memory, long-term-memory, openclaw]
+version: 0.1.2
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
 homepage: https://github.com/ZhenRobotics/openclaw-memory-os
 documentation: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/README.md
 
-# v0.1.1 - Functional CLI with Batch File Import
+# v0.1.2 - Conversation Memory with Auto-Trigger
 requires:
   packages:
     - name: openclaw-memory-os
       source: npm
-      version: ">=0.1.1"
+      version: ">=0.1.2"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
-      verified_commit: 2c1228c
+      verified_commit: TBD
   tools:
     - node>=18
     - npm
@@ -37,25 +37,27 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## ⚠️ Security & Privacy Notice (v0.1.1)
+## ⚠️ Security & Privacy Notice (v0.1.2)
 
 **Current Version Status:**
 - ✅ **100% Local Storage** - All data stored in `~/.memory-os/`
 - ✅ **No External API Calls** - Zero network activity
 - ✅ **No API Keys Required** - Works completely offline
 - ✅ **Manual Collection Only** - No automatic background scanning
-- ✅ **Functional CLI** - Batch file import now working
+- ✅ **Conversation Memory** - Auto-extract from natural language (NEW!)
 - ⚠️ **Future Features Planned** - Semantic search and LLM features NOT yet implemented
 
-**What v0.1.1 Does:**
+**What v0.1.2 Does:**
 - ✅ Local file-based memory storage (JSON)
 - ✅ Basic keyword search (local)
-- ✅ **NEW: Functional file collection CLI** (batch import from directories)
+- ✅ Batch file collection CLI (batch import from directories)
+- ✅ **NEW: Conversation memory extraction** (auto-extract names, dates, events)
+- ✅ **NEW: Auto-trigger support** (works with "记住..." or "remember...")
 - ✅ Recursive directory scanning
 - ✅ Automatic file type detection (TEXT vs CODE)
 - ✅ Timeline and stats (local computation)
 
-**What v0.1.1 Does NOT Do:**
+**What v0.1.2 Does NOT Do:**
 - ❌ No AI embeddings
 - ❌ No LLM calls
 - ❌ No external API usage
@@ -146,26 +148,51 @@ cat ~/.memory-os/memories/*.json | head -20
 
 ### When to Use This Skill
 
-**MANUAL TRIGGER** (Recommended for v0.1.0):
+**AUTO-TRIGGER** (New in v0.1.2 - Conversation Memory):
 
-Use when you explicitly want to:
-- Save specific information: "Save this to memory: ..."
-- Retrieve specific information: "Search my memories for ..."
-- Collect from specific files: "Collect memories from ~/my-notes/"
+The skill now automatically responds to memory-related conversations:
 
-**AUTO-TRIGGER** (⚠️ Use with Caution):
+**Trigger Keywords (Chinese)**:
+- `记住` - "记住我的名字：刘小容"
+- `保存` - "帮我保存这个信息"
+- `记录` - "记录今天的会议内容"
 
-Keywords: `memory`, `remember`, `recall`, `记忆`, `回忆`, `记住`, `保存`
+**Trigger Keywords (English)**:
+- `remember` - "Remember my name is Liu Xiaorong"
+- `save to memory` - "Save this to memory"
+- `keep in mind` - "Keep in mind that..."
 
-**⚠️ Security Recommendation:**
-- Disable AUTO-TRIGGER in production
-- Manually approve each collection action
-- Review collected data regularly
+**How It Works**:
+1. You mention "记住..." or "remember..." in conversation
+2. The skill automatically extracts key information
+3. Stores it in your local memory database
+4. Confirms what was remembered
+
+**Example Usage**:
+```
+User: 记住我的名字：刘小容
+Agent: ✅ 已记住
+       姓名: 刘小容
+       置信度: 80%
+
+User: Remember that the project deadline is 2026-04-01
+Agent: ✅ Remembered
+       Date: 2026-04-01
+       Event: project deadline
+       Confidence: 90%
+```
+
+**MANUAL TRIGGER** (For batch file operations):
+
+Use explicit commands when you want to:
+- Batch import files: "Collect memories from ~/my-notes/"
+- Search your memory database: "Search my memories for 'project planning'"
+- View statistics: "Show memory status"
 
 **DO NOT USE** when:
 - Simple reminders or todos (use task management)
 - Real-time collaboration (use chat tools)
-- Handling sensitive data without review
+- Sensitive data without review (all data is local, but be mindful)
 
 ---
 
@@ -267,9 +294,56 @@ openclaw-memory-os collect --source ~/test-data/
 
 ---
 
+## Conversation Memory Usage (v0.1.2+)
+
+### Quick Start with Conversation Memory
+
+**Command Line**:
+```bash
+# Chinese example
+openclaw-memory-os remember "记住我的名字：刘小容"
+
+# English example
+openclaw-memory-os remember "Remember my name is Liu Xiaorong"
+
+# Complex information
+openclaw-memory-os remember "记住：项目截止日期是2026年4月1日，负责人是张三"
+```
+
+**In Claude Conversation**:
+```
+You: 记住我的名字：刘小容
+
+Claude: ✅ 已记住！
+        姓名: 刘小容
+        存储位置: ~/.memory-os/memories/
+        类型: TEXT
+```
+
+### What Gets Extracted Automatically
+
+The system intelligently extracts:
+- **Names**: "我的名字是刘小容" → extracts "刘小容"
+- **Dates**: "截止日期2026-04-01" → extracts "2026-04-01"
+- **Events**: "会议：讨论Q2规划" → extracts "讨论Q2规划"
+- **Facts**: Any other important information
+
+### Supported Languages
+
+- **Chinese (中文)**: 记住、保存、记录、存储
+- **English**: remember, save, store, keep, note, record
+
+---
+
 ## Agent Usage Guide
 
 ### Important Notes
+
+**NEW in v0.1.2 - Conversation Memory**:
+- Auto-extracts information from conversations
+- Works with Chinese and English
+- Stores locally in ~/.memory-os
+- No manual file operations needed
 
 **CRITICAL for v0.1.1**:
 - This version is **local-only**
@@ -577,6 +651,6 @@ MIT-0 License
 
 ---
 
-**Memory-OS v0.1.1** - 100% Local, 0% Cloud, Your Data, Your Control
+**Memory-OS v0.1.2** - 100% Local, 0% Cloud, Your Data, Your Control
 
-Version: 0.1.1 | Verified Commit: 749ddf3 | Status: Production-Ready with Functional CLI
+Version: 0.1.2 | Verified Commit: TBD | Status: Production-Ready with Conversation Memory
