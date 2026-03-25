@@ -2,9 +2,9 @@
 
 **English** | [中文](#openclaw-memory-os-中文版)
 
-## ⚠️ Security & Privacy Notice (v0.1.2)
+## ⚠️ Security & Privacy Notice (v0.2.0-phase1)
 
-**Current Version:** 0.1.2
+**Current Version:** 0.2.0-phase1
 **Status:** 100% Local, Zero External APIs, Conversation Memory
 
 **What This Version Does:**
@@ -45,11 +45,11 @@ See full security details: [SECURITY.md](https://github.com/ZhenRobotics/opencla
 
 Memory-OS is an open-source personal memory management system designed for digital immortality and cognitive continuity. It can collect, store, retrieve, and intelligently process all your digital memories, build personal knowledge graphs, and provide the ability to have conversations with your digitized "self".
 
-**v0.1.2 Focus:** Conversation memory extraction with auto-trigger support. Extract and store information from natural conversations. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
+**v0.2.0-phase1 Focus:** Conversation memory extraction with auto-trigger support. Extract and store information from natural conversations. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
 
 ## Core Features
 
-**Current (v0.1.2):**
+**Current (v0.2.0-phase1):**
 - **Local Storage** - JSON-based file storage, no cloud dependency
 - **Conversation Memory** - Extract information from natural language (NEW!)
 - **Auto-Trigger** - Works with "记住..." or "remember..." (NEW!)
@@ -98,7 +98,7 @@ openclaw-memory-os config set owner.email "your@email.com"
 ### Basic Usage
 
 ```bash
-# NEW: Conversation memory (v0.1.2)
+# NEW: Conversation memory (v0.2.0-phase1)
 openclaw-memory-os remember "记住我的名字：刘小容"
 openclaw-memory-os remember "Remember the project deadline is 2026-04-01"
 
@@ -272,7 +272,7 @@ MIT-0 License
 
 ## ⚠️ 安全与隐私声明（v0.1.0 MVP 版本）
 
-**当前版本：** 0.1.2
+**当前版本：** 0.2.0-phase1
 **状态：** 100% 本地，零外部 API，对话记忆自动提取
 
 **此版本功能：**
@@ -313,7 +313,7 @@ MIT-0 License
 
 Memory-OS 是一个开源的个人记忆管理系统，旨在实现数字永生和认知延续。它能够采集、存储、检索和智能化处理你的所有数字记忆，构建个人知识图谱，并提供与数字化"自我"对话的能力。
 
-**v0.1.2 重点：** 对话记忆自动提取与触发支持。从自然对话中提取并存储信息。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
+**v0.2.0-phase1 重点：** 对话记忆自动提取与触发支持。从自然对话中提取并存储信息。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
 
 ## 核心特性
 
@@ -362,7 +362,7 @@ MIT-0 License
 
 ---
 
-**Version:** 0.1.2
+**Version:** 0.2.0-phase1
 **Verified Commit:** 28a1a92
 **Security Status:** Local-Only, Zero External APIs
 **Production Ready:** Yes (conversation memory with auto-trigger)
