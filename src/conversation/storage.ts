@@ -124,6 +124,7 @@ export class ConversationStorage {
   private messageIndex: MessageIndex;
   private indexUpdateQueue: IndexUpdate[] = [];
   private indexUpdateTimer: NodeJS.Timeout | null = null;
+  private closed: boolean = false;
 
   constructor(private config: StorageConfig) {
     this.basePath = this.expandPath(config.path);
@@ -458,6 +459,15 @@ export class ConversationStorage {
    * Close storage - flush pending operations
    */
   async close(): Promise<void> {
+    // Set closed flag to prevent new timers
+    this.closed = true;
+
+    // Clear any pending timer
+    if (this.indexUpdateTimer) {
+      clearTimeout(this.indexUpdateTimer);
+      this.indexUpdateTimer = null;
+    }
+
     // Flush pending index updates
     await this.flushIndexUpdates();
 
@@ -666,6 +676,11 @@ export class ConversationStorage {
   }
 
   private queueIndexUpdate(update: IndexUpdate): void {
+    // Don't queue updates if storage is closed
+    if (this.closed) {
+      return;
+    }
+
     this.indexUpdateQueue.push(update);
 
     // Flush every 10 updates or after 200ms (faster flush for responsiveness)
@@ -673,7 +688,7 @@ export class ConversationStorage {
       this.flushIndexUpdates().catch(err => {
         console.error('Failed to flush index updates:', err);
       });
-    } else if (!this.indexUpdateTimer) {
+    } else if (!this.indexUpdateTimer && !this.closed) {
       this.indexUpdateTimer = setTimeout(() => {
         this.flushIndexUpdates().catch(err => {
           console.error('Failed to flush index updates:', err);
