@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class SessionManager {
   private activeSessions: Map<string, ConversationSession> = new Map();
   private sessionTimeouts: Map<string, NodeJS.Timeout> = new Map();
+  private destroyed: boolean = false;
 
   constructor(
     private storage: ConversationStorage,
@@ -297,6 +298,9 @@ export class SessionManager {
    * Call this before destroying the session manager
    */
   async destroy(): Promise<void> {
+    // Set destroyed flag to prevent timeout callbacks from executing
+    this.destroyed = true;
+
     // Clear all timeouts
     for (const [sessionId, timeout] of this.sessionTimeouts.entries()) {
       clearTimeout(timeout);
@@ -323,6 +327,11 @@ export class SessionManager {
     const timeoutMs = this.config.sessionTimeout * 60 * 1000;
 
     const timeout = setTimeout(async () => {
+      // Don't execute if SessionManager has been destroyed
+      if (this.destroyed) {
+        return;
+      }
+
       console.log(`Auto-closing session ${sessionId} due to timeout`);
       try {
         await this.endSession(sessionId);
