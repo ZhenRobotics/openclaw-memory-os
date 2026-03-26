@@ -1,7 +1,7 @@
 ---
 name: openclaw-memory-os
-description: OpenClaw Memory-OS - Digital immortality service with full conversation recording | 数字永生服务与完整对话记录系统
-tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-recording, session-management, privacy-filter, agent-memory, long-term-memory, openclaw]
+description: OpenClaw Memory-OS - Digital immortality service with conversation recording infrastructure (Phase 1) | 数字永生服务对话记录基础设施（第一阶段）
+tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-storage, session-management, privacy-filter, agent-memory, long-term-memory, openclaw, infrastructure]
 version: 0.2.0-phase1
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
@@ -39,31 +39,51 @@ security:
 
 ## ⚠️ Security & Privacy Notice (v0.2.0 Phase 1)
 
+### 🔔 IMPORTANT CLARIFICATION
+
+**Phase 1 is INFRASTRUCTURE ONLY**:
+- ❌ **NO automatic conversation capture** - requires manual API calls
+- ❌ **NO AUTO-TRIGGER for OpenClaw** - Phase 2 feature (not yet implemented)
+- ❌ **NO real-time monitoring** - no background processes
+- ✅ **100% manual control** - you explicitly call APIs to store data
+- ✅ **Safe by default** - does nothing unless you write code to use it
+
+**What "auto_collection: manual_only" means**:
+- You must write TypeScript/JavaScript code to use the storage APIs
+- No automatic background scanning of files or conversations
+- All data collection requires explicit user action
+
 **Current Version Status:**
 - ✅ **100% Local Storage** - All data stored in `~/.memory-os/`
-- ✅ **No External API Calls** - Zero network activity
+- ✅ **No External API Calls** - Zero network activity (verified by tests)
 - ✅ **No API Keys Required** - Works completely offline
-- ✅ **Conversation Recording Infrastructure** - Complete storage, session, privacy systems (NEW!)
+- ✅ **Conversation Recording Infrastructure** - Storage, session, privacy modules (NEW!)
 - ✅ **100% Test Coverage** - 29 scenarios passing, production-ready
 - ✅ **High Performance** - <10ms writes, <5ms cached reads, 92% cache hit rate
-- ⚠️ **Phase 2 Planned** - Stream processing and CLI integration coming next
+- ⏳ **Phase 2 Planned** - Auto-capture and CLI coming in Phase 2 (not in this release)
 
 **What v0.2.0 Phase 1 Does:**
+- ✅ **NEW: Conversation Recording Infrastructure** (Storage, Session, Privacy modules)
+- ✅ **NEW: High-performance storage** (<10ms writes, 92% cache hit rate)
+- ✅ **NEW: Privacy filter** (8 default rules: API keys, emails, credit cards, etc.)
+- ✅ **NEW: Session management** (automatic timeout, activity tracking)
 - ✅ Local file-based memory storage (JSON)
 - ✅ Basic keyword search (local)
 - ✅ Batch file collection CLI (batch import from directories)
-- ✅ **NEW: Conversation memory extraction** (auto-extract names, dates, events)
-- ✅ **NEW: Auto-trigger support** (works with "记住..." or "remember...")
+- ✅ Manual `remember` command (from v0.1.2)
 - ✅ Recursive directory scanning
 - ✅ Automatic file type detection (TEXT vs CODE)
 - ✅ Timeline and stats (local computation)
 
-**What v0.1.2 Does NOT Do:**
+**What v0.2.0 Phase 1 Does NOT Do:**
+- ❌ **No automatic conversation capture** (Phase 2 feature)
+- ❌ No AUTO-TRIGGER for OpenClaw conversations (Phase 2 feature)
+- ❌ No real-time stdio interception (Phase 2 feature)
 - ❌ No AI embeddings
 - ❌ No LLM calls
 - ❌ No external API usage
 - ❌ No automatic background collection
-- ❌ No semantic search (planned for v0.2.0+)
+- ❌ No semantic search (planned for future)
 
 **Data Control:**
 - Your data: `~/.memory-os/`
@@ -72,11 +92,12 @@ security:
 - You delete: `rm -rf ~/.memory-os/` removes everything
 
 **Recommended Safe Usage:**
-1. **Test in sandboxed environment first**
+1. **Test in sandboxed environment first** (VM or container recommended)
 2. **Review what files will be collected** before running collect commands
 3. **Use explicit paths** - avoid broad patterns like `~/Documents`
-4. **Inspect collected data** in `~/.memory-os/data/memories/`
-5. **Disable AUTO-TRIGGER** in production until you're comfortable
+4. **Inspect collected data** in `~/.memory-os/conversations/` and `~/.memory-os/memories/`
+5. **Monitor network traffic** (use tcpdump) to verify zero network calls
+6. **Note**: Phase 1 has NO automatic capture - all operations are manual/API-based
 
 ---
 
