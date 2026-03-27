@@ -429,7 +429,7 @@ openclaw-memory-os collect --source ~/test/
 
 ---
 
-## 已知限制（v0.2.1）
+## 已知限制（v0.2.2）
 
 - ❌ 无 AI 功能（语义搜索、向量化）- 计划 v0.3.0+
 - ❌ 无静态加密（数据以明文 JSON 存储）
