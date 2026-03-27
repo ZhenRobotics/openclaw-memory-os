@@ -29,7 +29,11 @@ security:
   data_storage: local_only
   network_calls: none
   external_apis: none
-  auto_collection: manual_only  # Must be explicitly triggered
+  auto_collection: trigger_based  # Automatically activates on keyword detection
+  trigger_keywords: ["记住", "保存", "记录", "remember", "save to memory", "keep in mind"]
+  default_enabled: true  # AUTO-TRIGGER is ON by default
+  confirmation_required: false  # Saves immediately without asking
+  opt_out: configurable  # Can be disabled in ~/.memory-os/config.json
   encryption: optional
 ---
 
@@ -37,63 +41,145 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## ⚠️ Security & Privacy Notice (v0.2.0 Phase 1)
+## 🚨 CRITICAL PRIVACY NOTICE (v0.2.0 Phase 1)
 
-### 🔔 IMPORTANT CLARIFICATION
+### ⚠️ AUTO-TRIGGER IS ENABLED BY DEFAULT
 
-**Phase 1 is INFRASTRUCTURE ONLY**:
-- ❌ **NO automatic conversation capture** - requires manual API calls
-- ❌ **NO AUTO-TRIGGER for OpenClaw** - Phase 2 feature (not yet implemented)
-- ❌ **NO real-time monitoring** - no background processes
-- ✅ **100% manual control** - you explicitly call APIs to store data
-- ✅ **Safe by default** - does nothing unless you write code to use it
+**THIS SKILL AUTOMATICALLY SAVES CONVERSATION DATA WITHOUT CONFIRMATION**
 
-**What "auto_collection: manual_only" means**:
-- You must write TypeScript/JavaScript code to use the storage APIs
-- No automatic background scanning of files or conversations
-- All data collection requires explicit user action
+**How AUTO-TRIGGER Works:**
+1. **Detects trigger keywords** in your conversation: "记住", "remember", "save to memory", etc.
+2. **Automatically activates** (no need to explicitly invoke the skill)
+3. **Immediately extracts** information from your message
+4. **Instantly saves** to `~/.memory-os/` (local storage, NO confirmation prompt)
 
-**Current Version Status:**
-- ✅ **100% Local Storage** - All data stored in `~/.memory-os/`
-- ✅ **No External API Calls** - Zero network activity (verified by tests)
+**Trigger Keywords:**
+- **Chinese:** 记住 (remember), 保存 (save), 记录 (record)
+- **English:** remember, save to memory, keep in mind
+
+**Example (AUTOMATIC BEHAVIOR):**
+```
+You: "记住我的名字是刘小容"
+     ↓ AUTO-TRIGGER ACTIVATES (you didn't invoke the skill)
+     ↓ Extracts: name = "刘小容"
+     ↓ Saves to ~/.memory-os/memories/<uuid>.json
+Skill: ✅ Remembered: 刘小容
+```
+
+### ⚠️ Privacy Implications
+
+**RISKS YOU MUST UNDERSTAND:**
+
+1. **Accidental Triggers**
+   - Saying "we should remember this lesson" → May auto-save "this lesson"
+   - Casual conversation with trigger words → May save unintended data
+
+2. **No Confirmation**
+   - Data is saved **immediately** when keywords detected
+   - You are **NOT asked** "Do you want to save this?"
+   - You must **manually review** `~/.memory-os/` to see what was saved
+
+3. **Enabled by Default**
+   - AUTO-TRIGGER is **ON** immediately after installation
+   - You must **actively disable** it if you don't want automatic saves
+
+4. **Local Storage Only (SAFE ASPECT)**
+   - ✅ All data stays in `~/.memory-os/` (your local machine)
+   - ✅ **ZERO network calls** - nothing sent to external servers
+   - ✅ **NO cloud sync** - you have full control
+
+### 🛡️ How to Protect Your Privacy
+
+**Option 1: Disable AUTO-TRIGGER (Recommended for Privacy)**
+```bash
+# Edit configuration file
+nano ~/.memory-os/config.json
+
+# Add or change this line:
+{
+  "auto_trigger": false
+}
+
+# Save and restart
+# Now you must manually run: openclaw-memory-os remember "text"
+```
+
+**Option 2: Review What Was Saved**
+```bash
+# List all saved memories
+ls -lh ~/.memory-os/memories/
+
+# View specific memory
+cat ~/.memory-os/memories/<uuid>.json
+
+# Search for accidentally saved data
+grep -r "sensitive info" ~/.memory-os/
+```
+
+**Option 3: Delete Unwanted Data**
+```bash
+# Delete specific memory
+rm ~/.memory-os/memories/<uuid>.json
+
+# Delete ALL saved data (nuclear option)
+rm -rf ~/.memory-os/
+
+# Delete only memories, keep config
+rm -rf ~/.memory-os/memories/
+```
+
+**Option 4: Test in Sandbox First**
+```bash
+# Run in Docker container
+docker run -it --rm ubuntu:22.04 bash
+npm install -g openclaw-memory-os
+# Test AUTO-TRIGGER behavior safely
+```
+
+### ✅ What v0.2.0 Phase 1 Actually Does
+
+**Infrastructure Features:**
+- ✅ **Conversation Recording Infrastructure** (Storage, Session, Privacy modules)
+- ✅ **AUTO-TRIGGER** (keyword-based automatic data saving) - **ENABLED BY DEFAULT**
+- ✅ **High-performance storage** (<10ms writes, 92% cache hit rate)
+- ✅ **Privacy filter** (8 default rules: redacts API keys, emails, credit cards, etc.)
+- ✅ **Session management** (automatic timeout, activity tracking)
+- ✅ **Batch file collection** (CLI: `openclaw-memory-os collect --source ~/notes/`)
+- ✅ **Manual remember command** (CLI: `openclaw-memory-os remember "text"`)
+
+**Security Features:**
+- ✅ **100% Local Storage** - All data in `~/.memory-os/`
+- ✅ **Zero Network Activity** - Verified by tests (run `tcpdump` to confirm)
 - ✅ **No API Keys Required** - Works completely offline
-- ✅ **Conversation Recording Infrastructure** - Storage, session, privacy modules (NEW!)
-- ✅ **100% Test Coverage** - 29 scenarios passing, production-ready
-- ✅ **High Performance** - <10ms writes, <5ms cached reads, 92% cache hit rate
-- ⏳ **Phase 2 Planned** - Auto-capture and CLI coming in Phase 2 (not in this release)
+- ✅ **100% Test Coverage** - 29 scenarios passing
 
-**What v0.2.0 Phase 1 Does:**
-- ✅ **NEW: Conversation Recording Infrastructure** (Storage, Session, Privacy modules)
-- ✅ **NEW: High-performance storage** (<10ms writes, 92% cache hit rate)
-- ✅ **NEW: Privacy filter** (8 default rules: API keys, emails, credit cards, etc.)
-- ✅ **NEW: Session management** (automatic timeout, activity tracking)
-- ✅ Local file-based memory storage (JSON)
-- ✅ Basic keyword search (local)
-- ✅ Batch file collection CLI (batch import from directories)
-- ✅ Manual `remember` command (from v0.1.2)
-- ✅ Recursive directory scanning
-- ✅ Automatic file type detection (TEXT vs CODE)
-- ✅ Timeline and stats (local computation)
-
-**What v0.2.0 Phase 1 Does NOT Do:**
-- ❌ **No automatic conversation capture** (Phase 2 feature)
-- ❌ No AUTO-TRIGGER for OpenClaw conversations (Phase 2 feature)
-- ❌ No real-time stdio interception (Phase 2 feature)
-- ❌ No AI embeddings
+**What It Does NOT Do:**
+- ❌ No external API calls or cloud sync
+- ❌ No encryption (data stored as plain JSON)
+- ❌ No AI embeddings or semantic search
 - ❌ No LLM calls
-- ❌ No external API usage
-- ❌ No automatic background collection
-- ❌ No semantic search (planned for future)
+- ❌ No real-time stdio interception
 
-**Data Control:**
-- Your data: `~/.memory-os/`
-- You control: What to collect, when to collect
-- You own: All data files (JSON format, human-readable)
-- You delete: `rm -rf ~/.memory-os/` removes everything
+### 📋 Recommended Safe Usage
 
-**Recommended Safe Usage:**
-1. **Test in sandboxed environment first** (VM or container recommended)
-2. **Review what files will be collected** before running collect commands
+**CRITICAL: Test AUTO-TRIGGER Behavior First**
+
+1. **Install in isolated environment** (VM, container, or test user account)
+2. **Say trigger words** and observe what gets saved: "记住 test data"
+3. **Check what was saved:** `ls ~/.memory-os/memories/`
+4. **Verify no network calls:** `sudo tcpdump -i any` (should see ZERO network activity)
+5. **Decide:** Keep AUTO-TRIGGER enabled OR disable it in config
+
+**If You Keep AUTO-TRIGGER Enabled:**
+- ⚠️ **Review saves regularly** - Check `~/.memory-os/memories/` weekly
+- ⚠️ **Avoid trigger words** when discussing sensitive topics
+- ⚠️ **Use explicit paths** for file collection (not `~/Documents`)
+- ⚠️ **Monitor disk usage** - Auto-saves can accumulate over time
+
+**If You Disable AUTO-TRIGGER:**
+- ✅ Use manual commands: `openclaw-memory-os remember "intentional save"`
+- ✅ Full control over what gets saved
+- ✅ No accidental data collection
 3. **Use explicit paths** - avoid broad patterns like `~/Documents`
 4. **Inspect collected data** in `~/.memory-os/conversations/` and `~/.memory-os/memories/`
 5. **Monitor network traffic** (use tcpdump) to verify zero network calls
@@ -170,51 +256,91 @@ cat ~/.memory-os/memories/*.json | head -20
 
 ### When to Use This Skill
 
-**AUTO-TRIGGER** (New in v0.1.2 - Conversation Memory):
+**AUTO-TRIGGER** (Enabled by Default - ⚠️ Privacy Warning)
 
-The skill now automatically responds to memory-related conversations:
+⚠️ **This skill automatically responds to trigger keywords WITHOUT asking for confirmation**
 
-**Trigger Keywords (Chinese)**:
+**How AUTO-TRIGGER Works:**
+1. You mention trigger keywords in conversation (see list below)
+2. Skill **automatically activates** (no explicit invocation needed)
+3. **Immediately extracts** key information from your message
+4. **Instantly saves** to `~/.memory-os/` (NO confirmation prompt)
+5. Confirms what was saved (after the fact)
+
+**Trigger Keywords:**
+
+**Chinese:**
 - `记住` - "记住我的名字：刘小容"
 - `保存` - "帮我保存这个信息"
 - `记录` - "记录今天的会议内容"
 
-**Trigger Keywords (English)**:
+**English:**
 - `remember` - "Remember my name is Liu Xiaorong"
 - `save to memory` - "Save this to memory"
 - `keep in mind` - "Keep in mind that..."
 
-**How It Works**:
-1. You mention "记住..." or "remember..." in conversation
-2. The skill automatically extracts key information
-3. Stores it in your local memory database
-4. Confirms what was remembered
-
-**Example Usage**:
+**Example (AUTOMATIC - No Confirmation):**
 ```
 User: 记住我的名字：刘小容
+      ↓ AUTO-TRIGGER ACTIVATES (keyword detected)
+      ↓ Extracts: name = "刘小容"
+      ↓ Saves to ~/.memory-os/memories/<uuid>.json (IMMEDIATE)
 Agent: ✅ 已记住
        姓名: 刘小容
        置信度: 80%
+       保存位置: ~/.memory-os/memories/abc123.json
 
 User: Remember that the project deadline is 2026-04-01
+      ↓ AUTO-TRIGGER ACTIVATES (keyword "remember")
+      ↓ Saves IMMEDIATELY without asking
 Agent: ✅ Remembered
        Date: 2026-04-01
        Event: project deadline
        Confidence: 90%
+       Saved: ~/.memory-os/memories/def456.json
 ```
+
+⚠️ **Privacy Warning:**
+- Data is saved **automatically** when keywords are detected
+- **NO confirmation** prompt before saving
+- You may **accidentally trigger** saves during normal conversation
+- **Review regularly:** `ls ~/.memory-os/memories/` to see what was saved
+- **To disable:** Edit `~/.memory-os/config.json` and set `"auto_trigger": false`
 
 **MANUAL TRIGGER** (For batch file operations):
 
-Use explicit commands when you want to:
-- Batch import files: "Collect memories from ~/my-notes/"
-- Search your memory database: "Search my memories for 'project planning'"
-- View statistics: "Show memory status"
+Use explicit CLI commands when you want full control:
+```bash
+# Batch import files (manual control)
+openclaw-memory-os collect --source ~/my-notes/
 
-**DO NOT USE** when:
-- Simple reminders or todos (use task management)
-- Real-time collaboration (use chat tools)
-- Sensitive data without review (all data is local, but be mindful)
+# Search your memory database
+openclaw-memory-os search "project planning"
+
+# View statistics
+openclaw-memory-os status
+
+# Manual remember (if AUTO-TRIGGER is disabled)
+openclaw-memory-os remember "intentional save"
+```
+
+**WHEN TO USE AUTO-TRIGGER:**
+- ✅ When you want effortless memory capture during conversations
+- ✅ When you trust the keyword detection accuracy
+- ✅ When you're okay with occasional accidental saves
+- ✅ When discussing non-sensitive information
+
+**WHEN TO DISABLE AUTO-TRIGGER:**
+- ⚠️ When discussing sensitive/private information
+- ⚠️ When you want explicit control over what gets saved
+- ⚠️ When trigger words appear frequently in your conversations
+- ⚠️ When you prefer manual `openclaw-memory-os remember "text"` commands
+
+**How to Disable:**
+```bash
+nano ~/.memory-os/config.json
+# Add: {"auto_trigger": false}
+```
 
 ---
 
