@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name('openclaw-memory-os')
   .description('数字永生服务 | 认知延续基础设施 - 对话记忆自动提取')
-  .version('0.1.2');
+  .version('0.2.0-phase1');
 
 // ============================================================================
 // Init Command
