@@ -2,7 +2,7 @@
 name: openclaw-memory-os
 description: OpenClaw Memory-OS - Digital immortality service with conversation recording infrastructure (Phase 1) | 数字永生服务对话记录基础设施（第一阶段）
 tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-storage, session-management, privacy-filter, agent-memory, long-term-memory, openclaw, infrastructure]
-version: 0.2.1
+version: 0.2.2
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
 homepage: https://github.com/ZhenRobotics/openclaw-memory-os
@@ -13,7 +13,7 @@ requires:
   packages:
     - name: openclaw-memory-os
       source: npm
-      version: ">=0.2.1"
+      version: ">=0.2.2"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
       verified_commit: ca08c3cc3d89ff6571baf6dba102949bb25b364b
   tools:
@@ -26,11 +26,11 @@ security:
   data_storage: local_only
   network_calls: none
   external_apis: none
-  auto_collection: trigger_based  # Automatically activates on keyword detection
+  auto_collection: trigger_based  # Activates on keyword detection when enabled
   trigger_keywords: ["记住", "保存", "记录", "remember", "save to memory", "keep in mind"]
-  default_enabled: true  # AUTO-TRIGGER is ON by default
-  confirmation_required: false  # Saves immediately without asking
-  opt_out: configurable  # Can be disabled in ~/.memory-os/config.json
+  default_enabled: false  # AUTO-TRIGGER is OFF by default (opt-in for privacy)
+  confirmation_required: false  # Saves immediately when enabled
+  opt_in: configurable  # Can be enabled in ~/.memory-os/config.json
   encryption: optional
 ---
 
@@ -38,42 +38,43 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## 🚨 CRITICAL PRIVACY NOTICE
+## 🛡️ PRIVACY & SECURITY NOTICE
 
-### ⚠️ AUTO-TRIGGER IS ENABLED BY DEFAULT
+### ✅ AUTO-TRIGGER IS DISABLED BY DEFAULT (Opt-In)
 
-**This skill automatically saves conversation data without confirmation when trigger keywords are detected.**
+**For privacy protection, AUTO-TRIGGER is OFF by default. You must explicitly enable it.**
 
-**How it works:**
-1. Detects keywords: "记住", "remember", "save to memory", etc.
-2. Immediately extracts and saves to `~/.memory-os/` (NO confirmation)
-3. Data stays local (✅ zero network calls)
+**What is AUTO-TRIGGER?**
+- Detects keywords: "记住", "remember", "save to memory", etc.
+- Automatically extracts and saves to `~/.memory-os/` (NO confirmation when enabled)
+- Data stays local (✅ zero network calls)
 
-**Example:**
+**Default Behavior (Safe):**
 ```
 You: "记住我的名字是刘小容"
-     → AUTO-SAVES immediately
-Skill: ✅ Remembered: 刘小容
+     → Nothing happens (AUTO-TRIGGER is OFF)
+
+To save, use manual command:
+$ openclaw-memory-os remember "我的名字是刘小容"
 ```
 
-**Privacy Risks:**
-- ❌ Accidental triggers during casual conversation
-- ❌ No confirmation before saving
-- ❌ Enabled by default (must actively disable)
+**How to Enable AUTO-TRIGGER (Optional):**
+```bash
+# Method 1: Edit config
+nano ~/.memory-os/config.json
+{"auto_trigger": true}
+
+# Method 2: During init (if implemented)
+openclaw-memory-os init --enable-auto-trigger
+```
+
+**Privacy Considerations if Enabled:**
+- ⚠️ Accidental triggers during casual conversation
+- ⚠️ No confirmation before saving
+- ✅ Can be disabled anytime
 - ✅ All data stays local (100% offline)
 
-**How to Disable AUTO-TRIGGER:**
-```bash
-# Edit config
-nano ~/.memory-os/config.json
-{"auto_trigger": false}
-
-# Or test in sandbox first
-docker run -it --rm ubuntu:22.04
-npm install -g openclaw-memory-os@0.2.1
-```
-
-**Recommended:** Test in VM/container first, disable auto-trigger for sensitive conversations, regularly review `~/.memory-os/memories/`.
+**Recommended:** Use manual commands for full control, only enable AUTO-TRIGGER after testing in sandbox.
 
 ---
 
@@ -124,13 +125,37 @@ npm install && npm run build && npm link
 
 ## Usage
 
-### AUTO-TRIGGER (Default Behavior)
+### Manual Commands (Default - Recommended)
 
-**Trigger keywords activate automatically:**
+**By default, AUTO-TRIGGER is OFF. Use manual commands for full control:**
+
+```bash
+# Batch collect files
+openclaw-memory-os collect --source ~/notes/ --exclude node_modules
+
+# Save specific memory
+openclaw-memory-os remember "项目截止日期：2026-04-01"
+
+# Search memories
+openclaw-memory-os search "deadline"
+
+# View status
+openclaw-memory-os status
+```
+
+### AUTO-TRIGGER (Optional - Must Enable First)
+
+**⚠️ Disabled by default. To enable, edit config:**
+```bash
+nano ~/.memory-os/config.json
+{"auto_trigger": true}
+```
+
+**Once enabled, trigger keywords activate automatically:**
 - Chinese: 记住, 保存, 记录
 - English: remember, save to memory, keep in mind
 
-**Example:**
+**Example (only works after enabling):**
 ```
 User: "记住项目截止日期：2026-04-01"
       → Extracts: date=2026-04-01, event="项目截止"
@@ -139,24 +164,6 @@ User: "记住项目截止日期：2026-04-01"
 Agent: ✅ 已记住
        日期: 2026-04-01
        事件: 项目截止
-```
-
-**To disable:** `nano ~/.memory-os/config.json` → `{"auto_trigger": false}`
-
-### Manual Commands
-
-```bash
-# Batch collect
-openclaw-memory-os collect --source ~/notes/ --exclude node_modules
-
-# Manual remember (if auto-trigger disabled)
-openclaw-memory-os remember "Project deadline: 2026-04-01"
-
-# Search
-openclaw-memory-os search "deadline"
-
-# Status
-openclaw-memory-os status
 ```
 
 ---
@@ -259,37 +266,43 @@ const timeline = await memory.timeline({
 
 **[English](#openclaw-memory-os)** | 中文
 
-## 🚨 关键隐私声明
+## 🛡️ 隐私与安全声明
 
-### ⚠️ AUTO-TRIGGER 默认启用
+### ✅ AUTO-TRIGGER 默认关闭（需主动启用）
 
-**本 skill 在检测到触发词时自动保存对话数据，无需确认。**
+**为保护隐私，AUTO-TRIGGER 默认关闭。您必须明确启用才能使用。**
 
-**工作原理：**
-1. 检测关键词：记住、保存、记录、remember 等
-2. 立即提取并保存到 `~/.memory-os/`（无确认）
-3. 数据仅存储在本地（✅ 零网络调用）
+**什么是 AUTO-TRIGGER？**
+- 检测关键词：记住、保存、记录、remember 等
+- 自动提取并保存到 `~/.memory-os/`（启用时无需确认）
+- 数据仅存储在本地（✅ 零网络调用）
 
-**示例：**
+**默认行为（安全）：**
 ```
 用户："记住我的名字是刘小容"
-     → 自动保存
-Skill：✅ 已记住：刘小容
+     → 无反应（AUTO-TRIGGER 已关闭）
+
+如需保存，使用手动命令：
+$ openclaw-memory-os remember "我的名字是刘小容"
 ```
 
-**隐私风险：**
-- ❌ 日常对话中可能意外触发
-- ❌ 保存前无确认
-- ❌ 默认启用（需主动禁用）
+**如何启用 AUTO-TRIGGER（可选）：**
+```bash
+# 方法 1: 编辑配置
+nano ~/.memory-os/config.json
+{"auto_trigger": true}
+
+# 方法 2: 初始化时启用（如果已实现）
+openclaw-memory-os init --enable-auto-trigger
+```
+
+**启用后的隐私注意事项：**
+- ⚠️ 日常对话中可能意外触发
+- ⚠️ 保存前无确认
+- ✅ 可随时禁用
 - ✅ 所有数据本地存储（100% 离线）
 
-**如何禁用 AUTO-TRIGGER：**
-```bash
-nano ~/.memory-os/config.json
-{"auto_trigger": false}
-```
-
-**建议：** 先在虚拟机/容器中测试，敏感对话时禁用自动触发，定期检查 `~/.memory-os/memories/`。
+**建议：** 使用手动命令以获得完全控制，仅在沙盒测试后启用 AUTO-TRIGGER。
 
 ---
 
@@ -332,13 +345,37 @@ openclaw-memory-os search "测试"
 
 ## 使用方式
 
-### AUTO-TRIGGER（默认行为）
+### 手动命令（默认 - 推荐）
 
-**触发关键词自动激活：**
+**默认情况下，AUTO-TRIGGER 已关闭。使用手动命令以获得完全控制：**
+
+```bash
+# 批量采集文件
+openclaw-memory-os collect --source ~/notes/ --exclude node_modules
+
+# 保存特定记忆
+openclaw-memory-os remember "项目截止日期：2026-04-01"
+
+# 搜索记忆
+openclaw-memory-os search "截止"
+
+# 查看状态
+openclaw-memory-os status
+```
+
+### AUTO-TRIGGER（可选 - 需先启用）
+
+**⚠️ 默认关闭。启用方法：**
+```bash
+nano ~/.memory-os/config.json
+{"auto_trigger": true}
+```
+
+**启用后，触发关键词自动激活：**
 - 中文：记住、保存、记录
 - 英文：remember, save to memory, keep in mind
 
-**示例：**
+**示例（仅在启用后生效）：**
 ```
 用户："记住项目截止日期：2026-04-01"
       → 提取：date=2026-04-01, event="项目截止"
@@ -347,24 +384,6 @@ openclaw-memory-os search "测试"
 Agent：✅ 已记住
        日期：2026-04-01
        事件：项目截止
-```
-
-**禁用方法：** `nano ~/.memory-os/config.json` → `{"auto_trigger": false}`
-
-### 手动命令
-
-```bash
-# 批量采集
-openclaw-memory-os collect --source ~/notes/ --exclude node_modules
-
-# 手动记忆（如果禁用了 auto-trigger）
-openclaw-memory-os remember "项目截止日期：2026-04-01"
-
-# 搜索
-openclaw-memory-os search "截止"
-
-# 状态
-openclaw-memory-os status
 ```
 
 ---
