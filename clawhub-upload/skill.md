@@ -19,10 +19,7 @@ requires:
   tools:
     - node>=18
     - npm
-  # IMPORTANT: v0.1.0 does NOT require any API keys
-  # All AI features (embeddings, LLM) are PLANNED but NOT IMPLEMENTED
-  # This version is 100% local-only
-  api_keys: []  # No API keys needed for v0.1.0
+  api_keys: []  # No API keys needed - 100% local-only
 
 # Security & Privacy Declaration
 security:
@@ -41,652 +38,220 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## 🚨 CRITICAL PRIVACY NOTICE (v0.2.0 Phase 1)
+## 🚨 CRITICAL PRIVACY NOTICE
 
 ### ⚠️ AUTO-TRIGGER IS ENABLED BY DEFAULT
 
-**THIS SKILL AUTOMATICALLY SAVES CONVERSATION DATA WITHOUT CONFIRMATION**
+**This skill automatically saves conversation data without confirmation when trigger keywords are detected.**
 
-**How AUTO-TRIGGER Works:**
-1. **Detects trigger keywords** in your conversation: "记住", "remember", "save to memory", etc.
-2. **Automatically activates** (no need to explicitly invoke the skill)
-3. **Immediately extracts** information from your message
-4. **Instantly saves** to `~/.memory-os/` (local storage, NO confirmation prompt)
+**How it works:**
+1. Detects keywords: "记住", "remember", "save to memory", etc.
+2. Immediately extracts and saves to `~/.memory-os/` (NO confirmation)
+3. Data stays local (✅ zero network calls)
 
-**Trigger Keywords:**
-- **Chinese:** 记住 (remember), 保存 (save), 记录 (record)
-- **English:** remember, save to memory, keep in mind
-
-**Example (AUTOMATIC BEHAVIOR):**
+**Example:**
 ```
 You: "记住我的名字是刘小容"
-     ↓ AUTO-TRIGGER ACTIVATES (you didn't invoke the skill)
-     ↓ Extracts: name = "刘小容"
-     ↓ Saves to ~/.memory-os/memories/<uuid>.json
+     → AUTO-SAVES immediately
 Skill: ✅ Remembered: 刘小容
 ```
 
-### ⚠️ Privacy Implications
+**Privacy Risks:**
+- ❌ Accidental triggers during casual conversation
+- ❌ No confirmation before saving
+- ❌ Enabled by default (must actively disable)
+- ✅ All data stays local (100% offline)
 
-**RISKS YOU MUST UNDERSTAND:**
-
-1. **Accidental Triggers**
-   - Saying "we should remember this lesson" → May auto-save "this lesson"
-   - Casual conversation with trigger words → May save unintended data
-
-2. **No Confirmation**
-   - Data is saved **immediately** when keywords detected
-   - You are **NOT asked** "Do you want to save this?"
-   - You must **manually review** `~/.memory-os/` to see what was saved
-
-3. **Enabled by Default**
-   - AUTO-TRIGGER is **ON** immediately after installation
-   - You must **actively disable** it if you don't want automatic saves
-
-4. **Local Storage Only (SAFE ASPECT)**
-   - ✅ All data stays in `~/.memory-os/` (your local machine)
-   - ✅ **ZERO network calls** - nothing sent to external servers
-   - ✅ **NO cloud sync** - you have full control
-
-### 🛡️ How to Protect Your Privacy
-
-**Option 1: Disable AUTO-TRIGGER (Recommended for Privacy)**
+**How to Disable AUTO-TRIGGER:**
 ```bash
-# Edit configuration file
+# Edit config
 nano ~/.memory-os/config.json
+{"auto_trigger": false}
 
-# Add or change this line:
-{
-  "auto_trigger": false
-}
-
-# Save and restart
-# Now you must manually run: openclaw-memory-os remember "text"
+# Or test in sandbox first
+docker run -it --rm ubuntu:22.04
+npm install -g openclaw-memory-os@0.2.1
 ```
 
-**Option 2: Review What Was Saved**
-```bash
-# List all saved memories
-ls -lh ~/.memory-os/memories/
-
-# View specific memory
-cat ~/.memory-os/memories/<uuid>.json
-
-# Search for accidentally saved data
-grep -r "sensitive info" ~/.memory-os/
-```
-
-**Option 3: Delete Unwanted Data**
-```bash
-# Delete specific memory
-rm ~/.memory-os/memories/<uuid>.json
-
-# Delete ALL saved data (nuclear option)
-rm -rf ~/.memory-os/
-
-# Delete only memories, keep config
-rm -rf ~/.memory-os/memories/
-```
-
-**Option 4: Test in Sandbox First**
-```bash
-# Run in Docker container
-docker run -it --rm ubuntu:22.04 bash
-npm install -g openclaw-memory-os
-# Test AUTO-TRIGGER behavior safely
-```
-
-### ✅ What v0.2.0 Phase 1 Actually Does
-
-**Infrastructure Features:**
-- ✅ **Conversation Recording Infrastructure** (Storage, Session, Privacy modules)
-- ✅ **AUTO-TRIGGER** (keyword-based automatic data saving) - **ENABLED BY DEFAULT**
-- ✅ **High-performance storage** (<10ms writes, 92% cache hit rate)
-- ✅ **Privacy filter** (8 default rules: redacts API keys, emails, credit cards, etc.)
-- ✅ **Session management** (automatic timeout, activity tracking)
-- ✅ **Batch file collection** (CLI: `openclaw-memory-os collect --source ~/notes/`)
-- ✅ **Manual remember command** (CLI: `openclaw-memory-os remember "text"`)
-
-**Security Features:**
-- ✅ **100% Local Storage** - All data in `~/.memory-os/`
-- ✅ **Zero Network Activity** - Verified by tests (run `tcpdump` to confirm)
-- ✅ **No API Keys Required** - Works completely offline
-- ✅ **100% Test Coverage** - 29 scenarios passing
-
-**What It Does NOT Do:**
-- ❌ No external API calls or cloud sync
-- ❌ No encryption (data stored as plain JSON)
-- ❌ No AI embeddings or semantic search
-- ❌ No LLM calls
-- ❌ No real-time stdio interception
-
-### 📋 Recommended Safe Usage
-
-**CRITICAL: Test AUTO-TRIGGER Behavior First**
-
-1. **Install in isolated environment** (VM, container, or test user account)
-2. **Say trigger words** and observe what gets saved: "记住 test data"
-3. **Check what was saved:** `ls ~/.memory-os/memories/`
-4. **Verify no network calls:** `sudo tcpdump -i any` (should see ZERO network activity)
-5. **Decide:** Keep AUTO-TRIGGER enabled OR disable it in config
-
-**If You Keep AUTO-TRIGGER Enabled:**
-- ⚠️ **Review saves regularly** - Check `~/.memory-os/memories/` weekly
-- ⚠️ **Avoid trigger words** when discussing sensitive topics
-- ⚠️ **Use explicit paths** for file collection (not `~/Documents`)
-- ⚠️ **Monitor disk usage** - Auto-saves can accumulate over time
-
-**If You Disable AUTO-TRIGGER:**
-- ✅ Use manual commands: `openclaw-memory-os remember "intentional save"`
-- ✅ Full control over what gets saved
-- ✅ No accidental data collection
-3. **Use explicit paths** - avoid broad patterns like `~/Documents`
-4. **Inspect collected data** in `~/.memory-os/conversations/` and `~/.memory-os/memories/`
-5. **Monitor network traffic** (use tcpdump) to verify zero network calls
-6. **Note**: Phase 1 has NO automatic capture - all operations are manual/API-based
+**Recommended:** Test in VM/container first, disable auto-trigger for sensitive conversations, regularly review `~/.memory-os/memories/`.
 
 ---
-
-Digital immortality service and cognitive continuity infrastructure.
-
-AI-powered personal memory management system for capturing, storing, and intelligently retrieving your digital memories.
 
 ## Installation
 
-### Step 1: Install via ClawHub (Recommended)
-
+### Quick Start
 ```bash
-# Install the skill
-clawhub install openclaw-memory-os
-```
+# 1. Install
+npm install -g openclaw-memory-os@0.2.1
 
-### Step 2: Install the npm package
-
-```bash
-# Global installation
-npm install -g openclaw-memory-os
-
-# Or from source
-git clone https://github.com/ZhenRobotics/openclaw-memory-os.git
-cd openclaw-memory-os
-npm install
-npm run build
-npm link
-```
-
-### Step 3: Initialize Memory-OS
-
-```bash
-# Initialize (creates ~/.memory-os/)
+# 2. Initialize
 openclaw-memory-os init
 
-# Configure (optional)
-openclaw-memory-os config set owner.name "Your Name"
-openclaw-memory-os config set owner.email "your@email.com"
-```
-
-### Step 4: Collect Your First Memories
-
-```bash
-# Create test directory with sample files
-mkdir -p ~/test-memories
-echo "My first note" > ~/test-memories/note1.txt
-echo "# Learning Log" > ~/test-memories/log.md
-
-# Collect memories from directory
+# 3. Test (optional)
+mkdir ~/test-memories
+echo "Test note" > ~/test-memories/note.txt
 openclaw-memory-os collect --source ~/test-memories/
-
-# Verify collection
-openclaw-memory-os status
-openclaw-memory-os search "first"
+openclaw-memory-os search "test"
 ```
 
-**Security Check:**
+### From Source
 ```bash
-# Verify data location
-ls -la ~/.memory-os/memories/
-
-# Inspect collected memories
-cat ~/.memory-os/memories/*.json | head -20
-```
-
----
-
-## Usage
-
-### When to Use This Skill
-
-**AUTO-TRIGGER** (Enabled by Default - ⚠️ Privacy Warning)
-
-⚠️ **This skill automatically responds to trigger keywords WITHOUT asking for confirmation**
-
-**How AUTO-TRIGGER Works:**
-1. You mention trigger keywords in conversation (see list below)
-2. Skill **automatically activates** (no explicit invocation needed)
-3. **Immediately extracts** key information from your message
-4. **Instantly saves** to `~/.memory-os/` (NO confirmation prompt)
-5. Confirms what was saved (after the fact)
-
-**Trigger Keywords:**
-
-**Chinese:**
-- `记住` - "记住我的名字：刘小容"
-- `保存` - "帮我保存这个信息"
-- `记录` - "记录今天的会议内容"
-
-**English:**
-- `remember` - "Remember my name is Liu Xiaorong"
-- `save to memory` - "Save this to memory"
-- `keep in mind` - "Keep in mind that..."
-
-**Example (AUTOMATIC - No Confirmation):**
-```
-User: 记住我的名字：刘小容
-      ↓ AUTO-TRIGGER ACTIVATES (keyword detected)
-      ↓ Extracts: name = "刘小容"
-      ↓ Saves to ~/.memory-os/memories/<uuid>.json (IMMEDIATE)
-Agent: ✅ 已记住
-       姓名: 刘小容
-       置信度: 80%
-       保存位置: ~/.memory-os/memories/abc123.json
-
-User: Remember that the project deadline is 2026-04-01
-      ↓ AUTO-TRIGGER ACTIVATES (keyword "remember")
-      ↓ Saves IMMEDIATELY without asking
-Agent: ✅ Remembered
-       Date: 2026-04-01
-       Event: project deadline
-       Confidence: 90%
-       Saved: ~/.memory-os/memories/def456.json
-```
-
-⚠️ **Privacy Warning:**
-- Data is saved **automatically** when keywords are detected
-- **NO confirmation** prompt before saving
-- You may **accidentally trigger** saves during normal conversation
-- **Review regularly:** `ls ~/.memory-os/memories/` to see what was saved
-- **To disable:** Edit `~/.memory-os/config.json` and set `"auto_trigger": false`
-
-**MANUAL TRIGGER** (For batch file operations):
-
-Use explicit CLI commands when you want full control:
-```bash
-# Batch import files (manual control)
-openclaw-memory-os collect --source ~/my-notes/
-
-# Search your memory database
-openclaw-memory-os search "project planning"
-
-# View statistics
-openclaw-memory-os status
-
-# Manual remember (if AUTO-TRIGGER is disabled)
-openclaw-memory-os remember "intentional save"
-```
-
-**WHEN TO USE AUTO-TRIGGER:**
-- ✅ When you want effortless memory capture during conversations
-- ✅ When you trust the keyword detection accuracy
-- ✅ When you're okay with occasional accidental saves
-- ✅ When discussing non-sensitive information
-
-**WHEN TO DISABLE AUTO-TRIGGER:**
-- ⚠️ When discussing sensitive/private information
-- ⚠️ When you want explicit control over what gets saved
-- ⚠️ When trigger words appear frequently in your conversations
-- ⚠️ When you prefer manual `openclaw-memory-os remember "text"` commands
-
-**How to Disable:**
-```bash
-nano ~/.memory-os/config.json
-# Add: {"auto_trigger": false}
+git clone https://github.com/ZhenRobotics/openclaw-memory-os.git
+cd openclaw-memory-os
+npm install && npm run build && npm link
 ```
 
 ---
 
 ## Core Features
 
-**v0.1.1 (Current):**
+**v0.2.1 (Current - Phase 1):**
+- ✅ **Conversation Recording** - AUTO-TRIGGER keyword-based memory capture
+- ✅ **High-Performance Storage** - <10ms writes, 92% cache hit rate
+- ✅ **Privacy Filter** - Redacts API keys, emails, credit cards automatically
+- ✅ **Session Management** - 30min timeout, activity tracking
+- ✅ **Batch File Collection** - `collect --source ~/notes/`
+- ✅ **100% Local** - Zero network calls, no API keys required
+- ✅ **100% Test Coverage** - 29 scenarios passing
 
-- ✅ **Local Storage** - JSON-based, in `~/.memory-os/`
-- ✅ **Batch File Collection** - Import entire directories with progress display
-- ✅ **Automatic Type Detection** - Distinguishes CODE from TEXT files
-- ✅ **Recursive Scanning** - Processes subdirectories automatically
-- ✅ **Basic Search** - Keyword and tag-based (local)
-- ✅ **Timeline** - Temporal tracking of memories
-- ✅ **Privacy-First** - No cloud, no external APIs
-- ✅ **Extensible** - Modular architecture for future features
+**NOT Included (Planned for v0.3.0+):**
+- ⏳ AI embeddings / semantic search (requires API key)
+- ⏳ Knowledge graph
+- ⏳ LLM-powered insights
+- ⏳ Encryption at rest
 
-**Planned for Future Versions:**
-- ⏳ **Semantic Search** - AI-powered (requires API key)
-- ⏳ **Knowledge Graph** - Automatic relations (requires API key)
-- ⏳ **Cognitive Chat** - LLM integration (requires API key)
+---
+
+## Usage
+
+### AUTO-TRIGGER (Default Behavior)
+
+**Trigger keywords activate automatically:**
+- Chinese: 记住, 保存, 记录
+- English: remember, save to memory, keep in mind
+
+**Example:**
+```
+User: "记住项目截止日期：2026-04-01"
+      → Extracts: date=2026-04-01, event="项目截止"
+      → Saves: ~/.memory-os/memories/<uuid>.json
+
+Agent: ✅ 已记住
+       日期: 2026-04-01
+       事件: 项目截止
+```
+
+**To disable:** `nano ~/.memory-os/config.json` → `{"auto_trigger": false}`
+
+### Manual Commands
+
+```bash
+# Batch collect
+openclaw-memory-os collect --source ~/notes/ --exclude node_modules
+
+# Manual remember (if auto-trigger disabled)
+openclaw-memory-os remember "Project deadline: 2026-04-01"
+
+# Search
+openclaw-memory-os search "deadline"
+
+# Status
+openclaw-memory-os status
+```
 
 ---
 
 ## Security Best Practices
 
-### 1. Test in Isolated Environment
-
+### 1. Test in Sandbox First
 ```bash
-# Create test user or use VM
-# Install in test environment first
-npm install -g openclaw-memory-os
-
-# Initialize
+# VM/container test
+docker run -it --rm ubuntu:22.04 bash
+npm install -g openclaw-memory-os@0.2.1
 openclaw-memory-os init
-
-# Create test data
-mkdir ~/test-memories
-echo "Test note 1" > ~/test-memories/note1.txt
-echo "Test note 2" > ~/test-memories/note2.md
-
-# Collect from test directory
-openclaw-memory-os collect --source ~/test-memories/
+# Say trigger words and check ~/.memory-os/
 ```
 
-### 2. Review Collected Data
-
-```bash
-# Check what was collected
-ls ~/.memory-os/memories/
-
-# Read individual memory files
-cat ~/.memory-os/memories/*.json | jq '.'
-
-# View statistics
-openclaw-memory-os status
-```
-
-### 3. Control Collection Scope
-
+### 2. Control Collection Scope
 ```bash
 # ✅ Good: Specific directory
-openclaw-memory-os collect --source ~/my-project-notes/
+openclaw-memory-os collect --source ~/project-notes/
 
 # ✅ Good: With exclusions
-openclaw-memory-os collect --source ~/Documents/ --exclude node_modules .git dist
+openclaw-memory-os collect --source ~/Documents/ --exclude sensitive
 
-# ⚠️ Caution: Broad scope
-openclaw-memory-os collect --source ~/Documents/
-
-# ❌ Dangerous: System-wide
-openclaw-memory-os collect --source ~/  # DON'T DO THIS
+# ❌ Avoid: Broad scope
+openclaw-memory-os collect --source ~/  # Too broad
 ```
 
-### 4. Data Retention & Deletion
-
+### 3. Regular Data Review
 ```bash
-# View all memories
-openclaw-memory-os status
+# List all memories
+ls ~/.memory-os/memories/
 
-# Search for specific content
-openclaw-memory-os search "keyword"
+# Search for sensitive data
+grep -r "password\|secret" ~/.memory-os/
 
-# Delete specific memory
-rm ~/.memory-os/memories/<memory-id>.json
-
-# Complete removal
-rm -rf ~/.memory-os/
+# Delete unwanted data
+rm ~/.memory-os/memories/<uuid>.json
 ```
 
-### 5. Network Traffic Verification
-
+### 4. Network Verification
 ```bash
-# v0.1.1 should have ZERO network traffic
-# Monitor with:
+# Verify zero network activity
 sudo tcpdump -i any port 443 or port 80 &
-openclaw-memory-os collect --source ~/test-data/
+openclaw-memory-os collect --source ~/test/
 # Should see NO external connections
 ```
 
 ---
 
-## Conversation Memory Usage (v0.1.2+)
+## Agent API Usage
 
-### Quick Start with Conversation Memory
-
-**Command Line**:
-```bash
-# Chinese example
-openclaw-memory-os remember "记住我的名字：刘小容"
-
-# English example
-openclaw-memory-os remember "Remember my name is Liu Xiaorong"
-
-# Complex information
-openclaw-memory-os remember "记住：项目截止日期是2026年4月1日，负责人是张三"
-```
-
-**In Claude Conversation**:
-```
-You: 记住我的名字：刘小容
-
-Claude: ✅ 已记住！
-        姓名: 刘小容
-        存储位置: ~/.memory-os/memories/
-        类型: TEXT
-```
-
-### What Gets Extracted Automatically
-
-The system intelligently extracts:
-- **Names**: "我的名字是刘小容" → extracts "刘小容"
-- **Dates**: "截止日期2026-04-01" → extracts "2026-04-01"
-- **Events**: "会议：讨论Q2规划" → extracts "讨论Q2规划"
-- **Facts**: Any other important information
-
-### Supported Languages
-
-- **Chinese (中文)**: 记住、保存、记录、存储
-- **English**: remember, save, store, keep, note, record
-
----
-
-## Agent Usage Guide
-
-### Important Notes
-
-**NEW in v0.1.2 - Conversation Memory**:
-- Auto-extracts information from conversations
-- Works with Chinese and English
-- Stores locally in ~/.memory-os
-- No manual file operations needed
-
-**CRITICAL for v0.1.1**:
-- This version is **local-only**
-- No AI embeddings or LLM features active
-- All operations happen on your machine
-- No credentials needed
-- CLI collect command is now fully functional
-
-**Package Name**: When importing, use `openclaw-memory-os`:
-```typescript
-import { MemoryOS, MemoryType } from 'openclaw-memory-os';
-```
-
-**CLI Name**: When using CLI, use `openclaw-memory-os`:
-```bash
-openclaw-memory-os init
-openclaw-memory-os collect --source ~/specific-folder
-```
-
-### Pattern 1: Save Memory (Local Only)
-
+**Node.js Integration:**
 ```typescript
 import { MemoryOS, MemoryType } from 'openclaw-memory-os';
 
-const memory = new MemoryOS({
-  storePath: '~/.memory-os'  // Local storage
-});
+const memory = new MemoryOS({ storePath: '~/.memory-os' });
 await memory.init();
 
-// Save text memory (local JSON file)
+// Save memory
 await memory.collect({
   type: MemoryType.TEXT,
   content: 'User prefers TypeScript',
-  metadata: {
-    tags: ['preference'],
-    source: 'manual',
-  },
-});
-```
-
-### Pattern 2: Search Memory (Local Only)
-
-```typescript
-// Basic keyword search (no AI)
-const results = await memory.search({
-  query: 'TypeScript',  // Simple text matching
-  limit: 5,
+  metadata: { tags: ['preference'], source: 'manual' }
 });
 
-// Tag-based search
-const tagResults = await memory.search({
-  tags: ['preference'],
-});
-```
+// Search (local keyword matching)
+const results = await memory.search({ query: 'TypeScript', limit: 5 });
 
-### Pattern 3: Timeline Query (Local Only)
-
-```typescript
-// Query local timeline
+// Timeline
 const timeline = await memory.timeline({
   date: new Date('2024-03-01'),
-  range: 'day',
+  range: 'day'
 });
 ```
 
----
-
-## CLI Commands
-
-### Basic Operations (All Local)
-
-```bash
-# Initialize (creates local directory)
-openclaw-memory-os init
-
-# Collect from specific directory (NEW in v0.1.1 - fully functional)
-openclaw-memory-os collect --source ~/my-notes/
-
-# Collect with options
-openclaw-memory-os collect --source ~/Documents/ --exclude node_modules .git
-openclaw-memory-os collect --source ~/code/ --recursive
-
-# Search locally
-openclaw-memory-os search "keyword"
-openclaw-memory-os search --type text "programming notes"
-
-# Status (shows total memories, type breakdown)
-openclaw-memory-os status
-```
-
-### Security Commands
-
-```bash
-# Inspect data location
-openclaw-memory-os status
-
-# View statistics (local computation)
-openclaw-memory-os stats
-
-# Export data (local file copy)
-openclaw-memory-os export ~/backup/
-
-# Complete removal
-rm -rf ~/.memory-os/
-```
+**See full API docs:** [GitHub README](https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/README.md)
 
 ---
 
-## Configuration
+## Known Limitations (v0.2.1)
 
-**v0.1.0 Configuration** (No API keys needed):
-
-```json
-{
-  "storage": {
-    "path": "~/.memory-os/data",
-    "backend": "local"
-  },
-  "collectors": {
-    "auto": false,  // Manual only
-    "sources": [],  // Must be explicitly set
-    "exclude": ["node_modules", ".git", ".env"]
-  },
-  "privacy": {
-    "encryption": false,
-    "shareStats": false
-  }
-}
-```
-
-**Future Configuration** (v0.2.0+, when AI features are implemented):
-
-```json
-{
-  "embedding": {
-    "provider": "openai",  // Will require API key
-    "apiKey": "${OPENAI_API_KEY}"
-  },
-  "llm": {
-    "provider": "anthropic",  // Will require API key
-    "apiKey": "${ANTHROPIC_API_KEY}"
-  }
-}
-```
-
----
-
-## Known Limitations (v0.1.1)
-
-1. **No AI Features** - Semantic search and LLM features not implemented
-2. **Basic Search Only** - Simple keyword/tag matching (but works well with collected files)
-3. **Manual Collection** - No automatic background scanning
-4. **No Encryption** - Data stored as plain JSON (can enable manually)
-5. **No Multi-user** - Single-user local storage only
-6. **Limited Config Commands** - Config management partially implemented
-
----
-
-## Roadmap & Future Security Considerations
-
-### v0.2.0 (Planned) - AI Features
-
-**Will introduce:**
-- Semantic search (requires OpenAI/Anthropic API key)
-- Embeddings generation (data sent to external API)
-- LLM-powered insights
-
-**Security measures planned:**
-- Explicit API key configuration
-- User consent for each API call
-- Local-only mode option
-- Encryption support
-
-### v0.3.0 (Planned) - Advanced Features
-
-**Will introduce:**
-- Cloud sync (optional)
-- Encrypted storage
-- Multi-device support
+- ❌ No AI features (semantic search, embeddings) - planned for v0.3.0+
+- ❌ No encryption at rest (data stored as plain JSON)
+- ❌ No cloud sync or multi-device support
+- ❌ Basic keyword search only (no semantic understanding)
+- ❌ Single-user local storage only
 
 ---
 
 ## Links
 
-- **ClawHub**: https://clawhub.ai/skills/openclaw-memory-os
-- **npm**: https://www.npmjs.com/package/openclaw-memory-os
-- **GitHub**: https://github.com/ZhenRobotics/openclaw-memory-os
-- **Issues**: https://github.com/ZhenRobotics/openclaw-memory-os/issues
-- **Security**: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/SECURITY.md
-
----
-
-## License
-
-MIT-0 License
+- **GitHub:** https://github.com/ZhenRobotics/openclaw-memory-os
+- **npm:** https://www.npmjs.com/package/openclaw-memory-os
+- **Issues:** https://github.com/ZhenRobotics/openclaw-memory-os/issues
+- **Security:** https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/SECURITY.md
 
 ---
 
@@ -694,111 +259,173 @@ MIT-0 License
 
 **[English](#openclaw-memory-os)** | 中文
 
-## ⚠️ 安全与隐私声明（v0.1.0 MVP 版本）
+## 🚨 关键隐私声明
 
-**当前版本状态：**
-- ✅ **100% 本地存储** - 所有数据存储在 `~/.memory-os/data/`
-- ✅ **无外部 API 调用** - 零网络活动
-- ✅ **无需 API 密钥** - 完全离线工作
-- ✅ **仅手动收集** - 无自动后台扫描
-- ⚠️ **未来功能计划中** - 语义搜索和 LLM 功能尚未实现
+### ⚠️ AUTO-TRIGGER 默认启用
 
-**v0.1.0 能做什么：**
-- ✅ 本地文件记忆存储（JSON 格式）
-- ✅ 基本关键词搜索（本地）
-- ✅ 文件采集（仅手动触发）
-- ✅ 时间线和统计（本地计算）
+**本 skill 在检测到触发词时自动保存对话数据，无需确认。**
 
-**v0.1.0 不能做什么：**
-- ❌ 无 AI 向量化
-- ❌ 无 LLM 调用
-- ❌ 无外部 API 使用
-- ❌ 无自动后台收集
-- ❌ 无语义搜索（计划 v0.2.0+）
+**工作原理：**
+1. 检测关键词：记住、保存、记录、remember 等
+2. 立即提取并保存到 `~/.memory-os/`（无确认）
+3. 数据仅存储在本地（✅ 零网络调用）
 
-**数据控制：**
-- 您的数据：`~/.memory-os/data/`
-- 您控制：收集什么、何时收集
-- 您拥有：所有数据文件（JSON 格式，人类可读）
-- 您删除：`rm -rf ~/.memory-os/` 删除所有内容
+**示例：**
+```
+用户："记住我的名字是刘小容"
+     → 自动保存
+Skill：✅ 已记住：刘小容
+```
 
-**推荐安全使用：**
-1. **先在沙盒环境测试**
-2. **运行收集命令前检查将收集哪些文件**
-3. **使用明确路径** - 避免 `~/Documents` 等广泛模式
-4. **检查收集的数据** 在 `~/.memory-os/data/memories/`
-5. **禁用自动触发** 在生产环境，直到您熟悉系统
+**隐私风险：**
+- ❌ 日常对话中可能意外触发
+- ❌ 保存前无确认
+- ❌ 默认启用（需主动禁用）
+- ✅ 所有数据本地存储（100% 离线）
+
+**如何禁用 AUTO-TRIGGER：**
+```bash
+nano ~/.memory-os/config.json
+{"auto_trigger": false}
+```
+
+**建议：** 先在虚拟机/容器中测试，敏感对话时禁用自动触发，定期检查 `~/.memory-os/memories/`。
 
 ---
 
-数字永生服务 | 认知延续基础设施
-
-AI 驱动的个人记忆管理系统，用于捕获、存储和智能检索您的数字记忆。
-
 ## 安装
 
-[安装步骤与英文版相同]
+```bash
+# 1. 安装
+npm install -g openclaw-memory-os@0.2.1
 
-## 使用场景
+# 2. 初始化
+openclaw-memory-os init
 
-**手动触发（v0.1.0 推荐）：**
-
-显式使用时：
-- 保存特定信息："保存到记忆：..."
-- 检索特定信息："搜索我的记忆..."
-- 从特定文件收集："从 ~/my-notes/ 收集记忆"
-
-**自动触发（⚠️ 谨慎使用）：**
-
-关键词：`memory`、`remember`、`recall`、`记忆`、`回忆`、`记住`、`保存`
-
-**⚠️ 安全建议：**
-- 在生产环境禁用自动触发
-- 手动批准每个收集操作
-- 定期检查收集的数据
+# 3. 测试
+mkdir ~/test-memories
+echo "测试笔记" > ~/test-memories/note.txt
+openclaw-memory-os collect --source ~/test-memories/
+openclaw-memory-os search "测试"
+```
 
 ---
 
 ## 核心功能
 
-**v0.1.0 MVP（当前）：**
+**v0.2.1（当前 - Phase 1）：**
+- ✅ 对话记录 - 基于关键词的 AUTO-TRIGGER 记忆捕获
+- ✅ 高性能存储 - <10ms 写入，92% 缓存命中率
+- ✅ 隐私过滤 - 自动脱敏 API 密钥、邮箱、银行卡
+- ✅ 会话管理 - 30 分钟超时，活动追踪
+- ✅ 批量文件采集 - `collect --source ~/notes/`
+- ✅ 100% 本地 - 零网络调用，无需 API 密钥
+- ✅ 100% 测试覆盖 - 29 个场景通过
 
-- ✅ **本地存储** - JSON 格式，在 `~/.memory-os/data/`
-- ✅ **手动收集** - 从特定文件/目录
-- ✅ **基本搜索** - 关键词和标签（本地）
-- ✅ **时间线** - 记忆的时间追踪
-- ✅ **隐私优先** - 无云端，无外部 API
-- ✅ **可扩展** - 模块化架构用于未来功能
+**未包含（计划 v0.3.0+）：**
+- ⏳ AI 向量化/语义搜索（需 API 密钥）
+- ⏳ 知识图谱
+- ⏳ LLM 驱动的洞察
+- ⏳ 静态加密
 
-**未来版本计划：**
-- ⏳ **语义搜索** - AI 驱动（需要 API 密钥）
-- ⏳ **知识图谱** - 自动关系（需要 API 密钥）
-- ⏳ **认知对话** - LLM 集成（需要 API 密钥）
+---
+
+## 使用方式
+
+### AUTO-TRIGGER（默认行为）
+
+**触发关键词自动激活：**
+- 中文：记住、保存、记录
+- 英文：remember, save to memory, keep in mind
+
+**示例：**
+```
+用户："记住项目截止日期：2026-04-01"
+      → 提取：date=2026-04-01, event="项目截止"
+      → 保存：~/.memory-os/memories/<uuid>.json
+
+Agent：✅ 已记住
+       日期：2026-04-01
+       事件：项目截止
+```
+
+**禁用方法：** `nano ~/.memory-os/config.json` → `{"auto_trigger": false}`
+
+### 手动命令
+
+```bash
+# 批量采集
+openclaw-memory-os collect --source ~/notes/ --exclude node_modules
+
+# 手动记忆（如果禁用了 auto-trigger）
+openclaw-memory-os remember "项目截止日期：2026-04-01"
+
+# 搜索
+openclaw-memory-os search "截止"
+
+# 状态
+openclaw-memory-os status
+```
 
 ---
 
 ## 安全最佳实践
 
-[安全最佳实践与英文版相同]
+### 1. 先在沙盒中测试
+```bash
+docker run -it --rm ubuntu:22.04 bash
+npm install -g openclaw-memory-os@0.2.1
+openclaw-memory-os init
+# 说触发词并检查 ~/.memory-os/
+```
+
+### 2. 控制采集范围
+```bash
+# ✅ 推荐：特定目录
+openclaw-memory-os collect --source ~/project-notes/
+
+# ❌ 避免：过于广泛
+openclaw-memory-os collect --source ~/  # 范围太大
+```
+
+### 3. 定期数据审查
+```bash
+# 列出所有记忆
+ls ~/.memory-os/memories/
+
+# 搜索敏感数据
+grep -r "密码\|secret" ~/.memory-os/
+
+# 删除不需要的数据
+rm ~/.memory-os/memories/<uuid>.json
+```
+
+### 4. 网络流量验证
+```bash
+# 验证零网络活动
+sudo tcpdump -i any port 443 or port 80 &
+openclaw-memory-os collect --source ~/test/
+# 应该看不到任何外部连接
+```
+
+---
+
+## 已知限制（v0.2.1）
+
+- ❌ 无 AI 功能（语义搜索、向量化）- 计划 v0.3.0+
+- ❌ 无静态加密（数据以明文 JSON 存储）
+- ❌ 无云同步或多设备支持
+- ❌ 仅基础关键词搜索（无语义理解）
+- ❌ 仅单用户本地存储
 
 ---
 
 ## 链接
 
-- **ClawHub**: https://clawhub.ai/skills/openclaw-memory-os
-- **npm**: https://www.npmjs.com/package/openclaw-memory-os
-- **GitHub**: https://github.com/ZhenRobotics/openclaw-memory-os
-- **问题反馈**: https://github.com/ZhenRobotics/openclaw-memory-os/issues
-- **安全**: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/SECURITY.md
+- **GitHub:** https://github.com/ZhenRobotics/openclaw-memory-os
+- **npm:** https://www.npmjs.com/package/openclaw-memory-os
+- **问题反馈:** https://github.com/ZhenRobotics/openclaw-memory-os/issues
 
 ---
 
-## 许可证
-
-MIT-0 License
-
----
-
-**Memory-OS v0.1.2** - 100% Local, 0% Cloud, Your Data, Your Control
-
-Version: 0.1.2 | Verified Commit: 28a1a92 | Status: Production-Ready with Conversation Memory
+**License:** MIT-0 · Memory-OS v0.2.1 - 100% Local, 0% Cloud, Your Data, Your Control
