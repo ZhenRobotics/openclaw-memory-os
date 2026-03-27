@@ -83,7 +83,7 @@ openclaw-memory-os init --enable-auto-trigger
 ### Quick Start
 ```bash
 # 1. Install
-npm install -g openclaw-memory-os@0.2.1
+npm install -g openclaw-memory-os@0.2.2
 
 # 2. Initialize
 openclaw-memory-os init
@@ -106,7 +106,7 @@ npm install && npm run build && npm link
 
 ## Core Features
 
-**v0.2.1 (Current - Phase 1):**
+**v0.2.2 (Current - Phase 1):**
 - ✅ **Conversation Recording** - AUTO-TRIGGER keyword-based memory capture
 - ✅ **High-Performance Storage** - <10ms writes, 92% cache hit rate
 - ✅ **Privacy Filter** - Redacts API keys, emails, credit cards automatically
@@ -174,7 +174,7 @@ Agent: ✅ 已记住
 ```bash
 # VM/container test
 docker run -it --rm ubuntu:22.04 bash
-npm install -g openclaw-memory-os@0.2.1
+npm install -g openclaw-memory-os@0.2.2
 openclaw-memory-os init
 # Say trigger words and check ~/.memory-os/
 ```
@@ -243,7 +243,7 @@ const timeline = await memory.timeline({
 
 ---
 
-## Known Limitations (v0.2.1)
+## Known Limitations (v0.2.2)
 
 - ❌ No AI features (semantic search, embeddings) - planned for v0.3.0+
 - ❌ No encryption at rest (data stored as plain JSON)
@@ -310,7 +310,7 @@ openclaw-memory-os init --enable-auto-trigger
 
 ```bash
 # 1. 安装
-npm install -g openclaw-memory-os@0.2.1
+npm install -g openclaw-memory-os@0.2.2
 
 # 2. 初始化
 openclaw-memory-os init
@@ -326,7 +326,7 @@ openclaw-memory-os search "测试"
 
 ## 核心功能
 
-**v0.2.1（当前 - Phase 1）：**
+**v0.2.2（当前 - Phase 1）：**
 - ✅ 对话记录 - 基于关键词的 AUTO-TRIGGER 记忆捕获
 - ✅ 高性能存储 - <10ms 写入，92% 缓存命中率
 - ✅ 隐私过滤 - 自动脱敏 API 密钥、邮箱、银行卡
@@ -393,7 +393,7 @@ Agent：✅ 已记住
 ### 1. 先在沙盒中测试
 ```bash
 docker run -it --rm ubuntu:22.04 bash
-npm install -g openclaw-memory-os@0.2.1
+npm install -g openclaw-memory-os@0.2.2
 openclaw-memory-os init
 # 说触发词并检查 ~/.memory-os/
 ```
@@ -447,4 +447,4 @@ openclaw-memory-os collect --source ~/test/
 
 ---
 
-**License:** MIT-0 · Memory-OS v0.2.1 - 100% Local, 0% Cloud, Your Data, Your Control
+**License:** MIT-0 · Memory-OS v0.2.2 - 100% Local, 0% Cloud, Your Data, Your Control
