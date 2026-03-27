@@ -7,18 +7,19 @@
 **Current Version:** 0.2.2
 **Status:** 100% Local, Zero External APIs, Privacy-First Conversation Memory
 
-**🔒 Privacy Protection (NEW in v0.2.2):**
+**🔒 Privacy Notice (v0.2.2):**
 - ✅ **AUTO-TRIGGER is OFF by default** (opt-in only)
-- ✅ **Confirmation required** before each save (even when enabled)
-- ✅ **Double-layer protection**: Must enable + confirm each save
-- ✅ **100% local storage** - zero network calls
+- ⚠️ **No confirmation prompt** when enabled (saves immediately - planned for v0.3.0)
+- ⚠️ **Privacy filter exists but not integrated** (code implemented, CLI integration pending)
+- ⚠️ **No encryption at rest** (plain JSON files)
+- ✅ **100% local runtime** - zero network calls during operation (installation requires npm)
 
 **What This Version Does:**
 - ✅ Local file-based memory storage (JSON format)
 - ✅ Basic keyword search (all local computation)
 - ✅ Batch file collection (user-triggered CLI)
 - ✅ **Conversation memory extraction** (extract from natural language)
-- ✅ **Auto-trigger support** (opt-in, requires confirmation for each save)
+- ✅ **Auto-trigger support** (opt-in, saves immediately without confirmation in v0.2.2)
 - ✅ Recursive directory scanning with progress display
 - ✅ Automatic file type detection (TEXT vs CODE)
 - ✅ Timeline and statistics (local only)
@@ -51,16 +52,17 @@ See full security details: [SECURITY.md](https://github.com/ZhenRobotics/opencla
 
 Memory-OS is an open-source personal memory management system designed for digital immortality and cognitive continuity. It can collect, store, retrieve, and intelligently process all your digital memories, build personal knowledge graphs, and provide the ability to have conversations with your digitized "self".
 
-**v0.2.2 Focus:** Privacy-first conversation memory with double-layer protection. AUTO-TRIGGER is opt-in and requires confirmation before each save. Extract and store information from natural conversations safely. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
+**v0.2.2 Focus:** Opt-in conversation memory with local-only storage. AUTO-TRIGGER is disabled by default and saves directly when enabled (no confirmation prompt in v0.2.2). Privacy filter code exists but CLI integration pending. Extract and store information from natural conversations. AI features (semantic search, LLM integration) are planned but NOT implemented in this version.
 
 ## Core Features
 
 **Current (v0.2.2):**
-- **Privacy-First Design** - Opt-in AUTO-TRIGGER + confirmation required (NEW!)
-- **Local Storage** - JSON-based file storage, no cloud dependency
+- **Opt-In Design** - AUTO-TRIGGER disabled by default
+- **Local Storage** - JSON-based file storage, no cloud dependency, no encryption
 - **Conversation Memory** - Extract information from natural language
-- **Auto-Trigger** - Opt-in, works with "记住..." or "remember..."
+- **Auto-Trigger** - Opt-in, saves immediately (no confirmation prompt)
 - **Entity Extraction** - Automatically extracts names, dates, events
+- **Privacy Filter** - Code implemented, CLI integration pending v0.3.0
 - **Batch File Collection** - Import entire directories with one command
 - **Recursive Scanning** - Automatically processes subdirectories
 - **Type Detection** - Distinguishes CODE from TEXT files automatically
@@ -282,18 +284,19 @@ MIT-0 License
 **当前版本：** 0.2.2
 **状态：** 100% 本地，零外部 API，隐私优先的对话记忆
 
-**🔒 隐私保护（v0.2.2 新增）：**
+**🔒 隐私声明（v0.2.2）：**
 - ✅ **AUTO-TRIGGER 默认关闭**（仅限选择加入）
-- ✅ **保存前需要确认**（即使启用后也需确认）
-- ✅ **双层保护**：必须启用 + 确认每次保存
-- ✅ **100% 本地存储** - 零网络调用
+- ⚠️ **启用后无确认提示**（立即保存 - v0.3.0 计划实现）
+- ⚠️ **隐私过滤器已实现但未集成**（代码完成，CLI 集成待实现）
+- ⚠️ **无静态加密**（明文 JSON 文件）
+- ✅ **100% 本地运行** - 运行时零网络调用（安装需要 npm）
 
 **此版本功能：**
 - ✅ 本地文件记忆存储（JSON 格式）
 - ✅ 基本关键词搜索（全部本地计算）
 - ✅ 批量文件采集功能（用户触发的 CLI）
 - ✅ **对话记忆提取**（从自然语言提取）
-- ✅ **自动触发支持**（选择加入，每次保存需确认）
+- ✅ **自动触发支持**（选择加入，v0.2.2 无确认提示立即保存）
 - ✅ 递归目录扫描并显示进度
 - ✅ 自动文件类型检测（TEXT vs CODE）
 - ✅ 时间线和统计（仅本地）
@@ -326,16 +329,17 @@ MIT-0 License
 
 Memory-OS 是一个开源的个人记忆管理系统，旨在实现数字永生和认知延续。它能够采集、存储、检索和智能化处理你的所有数字记忆，构建个人知识图谱，并提供与数字化"自我"对话的能力。
 
-**v0.2.2 重点：** 隐私优先的对话记忆，双层保护机制。AUTO-TRIGGER 采用选择加入模式，每次保存前需要确认。安全地从自然对话中提取并存储信息。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
+**v0.2.2 重点：** 选择加入的对话记忆，纯本地存储。AUTO-TRIGGER 默认关闭，启用后直接保存（v0.2.2 无确认提示）。隐私过滤器代码已实现但 CLI 集成待完成。从自然对话中提取并存储信息。AI 功能（语义搜索、LLM 集成）已计划但此版本未实现。
 
 ## 核心特性
 
 **当前版本（v0.2.2）：**
-- **隐私优先设计** - 选择加入的 AUTO-TRIGGER + 需确认（新增！）
-- **本地存储** - 基于 JSON 文件，无云端依赖
+- **选择加入设计** - AUTO-TRIGGER 默认关闭
+- **本地存储** - 基于 JSON 文件，无云端依赖，无加密
 - **对话记忆** - 从自然语言提取信息
-- **自动触发** - 选择加入，支持"记住..."或"remember..."
+- **自动触发** - 选择加入，立即保存（无确认提示）
 - **实体提取** - 自动提取姓名、日期、事件
+- **隐私过滤** - 代码已实现，CLI 集成待完成 v0.3.0
 - **批量采集** - 从指定文件和目录
 - **基本搜索** - 关键词和标签过滤（本地）
 - **时间线追踪** - 记忆的时间组织

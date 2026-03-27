@@ -24,14 +24,15 @@ requires:
 # Security & Privacy Declaration
 security:
   data_storage: local_only
-  network_calls: none
+  network_calls: none_at_runtime  # Zero network calls during operation (installation requires npm/git)
   external_apis: none
   auto_collection: trigger_based  # Activates on keyword detection when enabled
   trigger_keywords: ["记住", "保存", "记录", "remember", "save to memory", "keep in mind"]
   default_enabled: false  # AUTO-TRIGGER is OFF by default (opt-in for privacy)
-  confirmation_required: true  # Requires user confirmation before each save (double protection)
+  confirmation_required: false  # Currently saves directly (confirmation planned for v0.3.0)
+  privacy_filter: implemented_not_integrated  # Code exists, integration pending v0.3.0
   opt_in: configurable  # Can be enabled in ~/.memory-os/config.json
-  encryption: optional
+  encryption: none  # Plain JSON storage (encryption planned for v0.3.0)
 ---
 
 # OpenClaw Memory-OS
@@ -46,8 +47,8 @@ security:
 
 **What is AUTO-TRIGGER?**
 - Detects keywords: "记住", "remember", "save to memory", etc.
-- Extracts content and prompts for confirmation before saving to `~/.memory-os/`
-- Data stays local (✅ zero network calls)
+- Extracts and saves content directly to `~/.memory-os/` (⚠️ no confirmation prompt in v0.2.2)
+- Data stays local (✅ zero network calls during runtime)
 
 **Default Behavior (Safe):**
 ```
@@ -69,12 +70,34 @@ openclaw-memory-os init --enable-auto-trigger
 ```
 
 **Privacy Considerations if Enabled:**
-- ⚠️ Accidental triggers during casual conversation (but you'll be prompted to confirm)
-- ✅ Requires confirmation before each save (double protection)
+- ⚠️ Accidental triggers during casual conversation will save immediately (no prompt)
+- ⚠️ No confirmation before saving (v0.2.2 limitation - planned for v0.3.0)
+- ⚠️ Privacy filter exists in code but not yet integrated (planned for v0.3.0)
+- ⚠️ Data stored as plain JSON (no encryption at rest)
 - ✅ Can be disabled anytime
-- ✅ All data stays local (100% offline)
+- ✅ All data stays local (100% offline during runtime)
 
 **Recommended:** Use manual commands for full control, only enable AUTO-TRIGGER after testing in sandbox.
+
+---
+
+## 🔍 Privacy Filter Status (v0.2.2)
+
+**Implementation Status:** Code exists but not yet integrated into CLI
+
+The privacy filter is **implemented** in the codebase (`src/conversation/privacy-filter.ts`) with comprehensive rules:
+- ✅ API keys, tokens, passwords
+- ✅ Email addresses
+- ✅ Credit card numbers
+- ✅ IP addresses, SSN, phone numbers
+- ✅ Private keys, system paths
+
+**Current Limitation:** The filter is **not automatically applied** during memory collection in v0.2.2. Users must:
+1. Review collected data manually: `cat ~/.memory-os/memories/*.json`
+2. Delete sensitive files: `rm ~/.memory-os/memories/<uuid>.json`
+3. Avoid collecting directories with credentials
+
+**Planned:** Automatic privacy filter integration in v0.3.0
 
 ---
 
@@ -107,12 +130,12 @@ npm install && npm run build && npm link
 ## Core Features
 
 **v0.2.2 (Current - Phase 1):**
-- ✅ **Conversation Recording** - AUTO-TRIGGER keyword-based memory capture
+- ✅ **Conversation Recording** - AUTO-TRIGGER keyword-based memory capture (opt-in)
 - ✅ **High-Performance Storage** - <10ms writes, 92% cache hit rate
-- ✅ **Privacy Filter** - Redacts API keys, emails, credit cards automatically
+- ⚠️ **Privacy Filter** - Implemented in code, not yet integrated into CLI
 - ✅ **Session Management** - 30min timeout, activity tracking
 - ✅ **Batch File Collection** - `collect --source ~/notes/`
-- ✅ **100% Local** - Zero network calls, no API keys required
+- ✅ **100% Local Runtime** - Zero network calls during operation (installation requires npm)
 - ✅ **100% Test Coverage** - 29 scenarios passing
 
 **NOT Included (Planned for v0.3.0+):**
@@ -245,8 +268,14 @@ const timeline = await memory.timeline({
 
 ## Known Limitations (v0.2.2)
 
+**Current Implementation Gaps:**
+- ⚠️ **No confirmation prompt** - AUTO-TRIGGER saves immediately when enabled
+- ⚠️ **Privacy filter not integrated** - Code exists but not applied to memory collection
+- ⚠️ **No encryption at rest** - Data stored as plain JSON files
+- ⚠️ **Installation requires network** - "Zero network calls" applies to runtime only, not npm install
+
+**Feature Limitations:**
 - ❌ No AI features (semantic search, embeddings) - planned for v0.3.0+
-- ❌ No encryption at rest (data stored as plain JSON)
 - ❌ No cloud sync or multi-device support
 - ❌ Basic keyword search only (no semantic understanding)
 - ❌ Single-user local storage only
@@ -274,8 +303,8 @@ const timeline = await memory.timeline({
 
 **什么是 AUTO-TRIGGER？**
 - 检测关键词：记住、保存、记录、remember 等
-- 提取内容并在保存前提示确认到 `~/.memory-os/`
-- 数据仅存储在本地（✅ 零网络调用）
+- 提取内容并直接保存到 `~/.memory-os/`（⚠️ v0.2.2 无确认提示）
+- 数据仅存储在本地（✅ 运行时零网络调用）
 
 **默认行为（安全）：**
 ```
@@ -297,10 +326,12 @@ openclaw-memory-os init --enable-auto-trigger
 ```
 
 **启用后的隐私注意事项：**
-- ⚠️ 日常对话中可能意外触发（但会提示确认）
-- ✅ 保存前需要确认（双重保护）
+- ⚠️ 日常对话中意外触发会立即保存（无提示）
+- ⚠️ 保存前无确认提示（v0.2.2 限制 - v0.3.0 计划实现）
+- ⚠️ 隐私过滤器已实现但未集成（v0.3.0 计划集成）
+- ⚠️ 数据以明文 JSON 存储（无静态加密）
 - ✅ 可随时禁用
-- ✅ 所有数据本地存储（100% 离线）
+- ✅ 所有数据本地存储（运行时 100% 离线）
 
 **建议：** 使用手动命令以获得完全控制，仅在沙盒测试后启用 AUTO-TRIGGER。
 
@@ -327,12 +358,12 @@ openclaw-memory-os search "测试"
 ## 核心功能
 
 **v0.2.2（当前 - Phase 1）：**
-- ✅ 对话记录 - 基于关键词的 AUTO-TRIGGER 记忆捕获
+- ✅ 对话记录 - 基于关键词的 AUTO-TRIGGER 记忆捕获（选择加入）
 - ✅ 高性能存储 - <10ms 写入，92% 缓存命中率
-- ✅ 隐私过滤 - 自动脱敏 API 密钥、邮箱、银行卡
+- ⚠️ 隐私过滤 - 代码已实现，CLI 尚未集成
 - ✅ 会话管理 - 30 分钟超时，活动追踪
 - ✅ 批量文件采集 - `collect --source ~/notes/`
-- ✅ 100% 本地 - 零网络调用，无需 API 密钥
+- ✅ 100% 本地运行 - 运行时零网络调用（安装需要 npm）
 - ✅ 100% 测试覆盖 - 29 个场景通过
 
 **未包含（计划 v0.3.0+）：**
@@ -431,8 +462,14 @@ openclaw-memory-os collect --source ~/test/
 
 ## 已知限制（v0.2.2）
 
+**当前实现缺陷：**
+- ⚠️ **无确认提示** - AUTO-TRIGGER 启用时立即保存
+- ⚠️ **隐私过滤未集成** - 代码已实现但未应用于记忆采集
+- ⚠️ **无静态加密** - 数据以明文 JSON 文件存储
+- ⚠️ **安装需要网络** - "零网络调用"仅指运行时，不包括 npm install
+
+**功能限制：**
 - ❌ 无 AI 功能（语义搜索、向量化）- 计划 v0.3.0+
-- ❌ 无静态加密（数据以明文 JSON 存储）
 - ❌ 无云同步或多设备支持
 - ❌ 仅基础关键词搜索（无语义理解）
 - ❌ 仅单用户本地存储
