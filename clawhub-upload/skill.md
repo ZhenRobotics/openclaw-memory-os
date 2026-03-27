@@ -2,7 +2,7 @@
 name: openclaw-memory-os
 description: OpenClaw Memory-OS - Digital immortality service with conversation recording infrastructure (Phase 1) | 数字永生服务对话记录基础设施（第一阶段）
 tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-storage, session-management, privacy-filter, agent-memory, long-term-memory, openclaw, infrastructure]
-version: 0.2.0-phase1
+version: 0.2.1
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
 homepage: https://github.com/ZhenRobotics/openclaw-memory-os
@@ -13,7 +13,7 @@ requires:
   packages:
     - name: openclaw-memory-os
       source: npm
-      version: ">=0.2.0-phase1"
+      version: ">=0.2.1"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
       verified_commit: 1c9bb8f4ec3c29efa03455350900ceb005f46fef
   tools:
