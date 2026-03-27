@@ -29,7 +29,7 @@ security:
   auto_collection: trigger_based  # Activates on keyword detection when enabled
   trigger_keywords: ["记住", "保存", "记录", "remember", "save to memory", "keep in mind"]
   default_enabled: false  # AUTO-TRIGGER is OFF by default (opt-in for privacy)
-  confirmation_required: false  # Saves immediately when enabled
+  confirmation_required: true  # Requires user confirmation before each save (double protection)
   opt_in: configurable  # Can be enabled in ~/.memory-os/config.json
   encryption: optional
 ---
@@ -46,7 +46,7 @@ security:
 
 **What is AUTO-TRIGGER?**
 - Detects keywords: "记住", "remember", "save to memory", etc.
-- Automatically extracts and saves to `~/.memory-os/` (NO confirmation when enabled)
+- Extracts content and prompts for confirmation before saving to `~/.memory-os/`
 - Data stays local (✅ zero network calls)
 
 **Default Behavior (Safe):**
@@ -69,8 +69,8 @@ openclaw-memory-os init --enable-auto-trigger
 ```
 
 **Privacy Considerations if Enabled:**
-- ⚠️ Accidental triggers during casual conversation
-- ⚠️ No confirmation before saving
+- ⚠️ Accidental triggers during casual conversation (but you'll be prompted to confirm)
+- ✅ Requires confirmation before each save (double protection)
 - ✅ Can be disabled anytime
 - ✅ All data stays local (100% offline)
 
@@ -274,7 +274,7 @@ const timeline = await memory.timeline({
 
 **什么是 AUTO-TRIGGER？**
 - 检测关键词：记住、保存、记录、remember 等
-- 自动提取并保存到 `~/.memory-os/`（启用时无需确认）
+- 提取内容并在保存前提示确认到 `~/.memory-os/`
 - 数据仅存储在本地（✅ 零网络调用）
 
 **默认行为（安全）：**
@@ -297,8 +297,8 @@ openclaw-memory-os init --enable-auto-trigger
 ```
 
 **启用后的隐私注意事项：**
-- ⚠️ 日常对话中可能意外触发
-- ⚠️ 保存前无确认
+- ⚠️ 日常对话中可能意外触发（但会提示确认）
+- ✅ 保存前需要确认（双重保护）
 - ✅ 可随时禁用
 - ✅ 所有数据本地存储（100% 离线）
 
