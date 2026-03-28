@@ -56,3 +56,14 @@ agents/video-*.json
 agents/tools.ts
 agents/test-agent.sh
 *.md.old
+
+# Internal documentation (ClawHub security)
+FEISHU_*
+CLAWHUB_*
+ADVANCED_FEATURES*
+RELEASE_NOTES*
+RELEASE_*
+*_SOLUTION_*
+OPTIMIZATION_*
+INSTALL.md
+SECURITY_FULL*
