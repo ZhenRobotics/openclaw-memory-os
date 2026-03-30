@@ -9,6 +9,17 @@ homepage: https://github.com/ZhenRobotics/openclaw-memory-os
 documentation: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/README.md
 
 # v0.2.0 Phase 1 - Conversation Recording Foundation
+# IMPORTANT: This skill requires external package installation via npm
+install:
+  type: npm_package
+  steps:
+    - command: "npm install -g openclaw-memory-os@0.2.2"
+      description: "Install the Memory-OS CLI globally"
+    - command: "openclaw-memory-os init"
+      description: "Initialize local storage at ~/.memory-os/"
+  network_required: true  # npm install downloads from registry
+  disk_space: "~50MB"
+
 requires:
   packages:
     - name: openclaw-memory-os
@@ -19,7 +30,7 @@ requires:
   tools:
     - node>=18
     - npm
-  api_keys: []  # No API keys needed - 100% local-only
+  api_keys: []  # No API keys needed after installation
 
 # Security & Privacy Declaration
 security:
@@ -39,11 +50,38 @@ security:
 
 **English** | [中文](#openclaw-memory-os-中文)
 
-## 🛡️ PRIVACY & SECURITY NOTICE
+## ⚠️ CRITICAL PRIVACY & SECURITY NOTICE
+
+**READ THIS BEFORE INSTALLING OR ENABLING AUTO-TRIGGER**
+
+### 🔴 Known Privacy Risks (v0.2.2)
+
+1. **No Confirmation Prompts** - AUTO-TRIGGER saves immediately without asking
+2. **Privacy Filter Not Integrated** - Code exists but not applied (can save API keys, passwords, emails)
+3. **No Encryption** - Data stored as plain JSON files in `~/.memory-os/`
+4. **Broad Collection Risk** - `collect --source` can recursively scan any directory
+
+### ✅ SAFE USAGE RECOMMENDATIONS
+
+**DO:**
+- ✅ Test in isolated VM/sandbox first
+- ✅ Use manual `remember` command only (avoid AUTO-TRIGGER)
+- ✅ Limit `collect --source` to specific, non-sensitive folders
+- ✅ Review `~/.memory-os/memories/*.json` regularly
+- ✅ Backup and encrypt `~/.memory-os/` yourself if needed
+- ✅ Monitor network traffic (should be zero after installation)
+
+**DO NOT:**
+- ❌ Enable AUTO-TRIGGER in production without code audit
+- ❌ Run `collect --source ~/` or other broad paths with sensitive data
+- ❌ Store API keys, passwords, or credentials in collected files
+- ❌ Trust plaintext storage for confidential information
+
+---
 
 ### ✅ AUTO-TRIGGER IS DISABLED BY DEFAULT (Opt-In)
 
-**For privacy protection, AUTO-TRIGGER is OFF by default. You must explicitly enable it.**
+**For privacy protection, AUTO-TRIGGER is OFF by default. You must explicitly enable it in config.**
 
 **What is AUTO-TRIGGER?**
 - Detects keywords: "记住", "remember", "save to memory", etc.
@@ -295,11 +333,38 @@ const timeline = await memory.timeline({
 
 **[English](#openclaw-memory-os)** | 中文
 
-## 🛡️ 隐私与安全声明
+## ⚠️ 重要隐私与安全声明
+
+**安装或启用 AUTO-TRIGGER 前请仔细阅读**
+
+### 🔴 已知隐私风险（v0.2.2）
+
+1. **无确认提示** - AUTO-TRIGGER 启用后立即保存，不询问
+2. **隐私过滤未集成** - 代码已实现但未应用（可能保存 API 密钥、密码、邮箱）
+3. **无加密存储** - 数据以明文 JSON 存储于 `~/.memory-os/`
+4. **广泛采集风险** - `collect --source` 可递归扫描任意目录
+
+### ✅ 安全使用建议
+
+**应该做：**
+- ✅ 先在隔离虚拟机/沙盒环境测试
+- ✅ 仅使用手动 `remember` 命令（避免 AUTO-TRIGGER）
+- ✅ 限制 `collect --source` 到特定、非敏感文件夹
+- ✅ 定期检查 `~/.memory-os/memories/*.json`
+- ✅ 必要时自行备份和加密 `~/.memory-os/`
+- ✅ 监控网络流量（安装后应为零）
+
+**不应该做：**
+- ❌ 未审计代码前在生产环境启用 AUTO-TRIGGER
+- ❌ 对包含敏感数据的路径运行 `collect --source ~/`
+- ❌ 在采集文件中存储 API 密钥、密码或凭证
+- ❌ 依赖明文存储保护机密信息
+
+---
 
 ### ✅ AUTO-TRIGGER 默认关闭（需主动启用）
 
-**为保护隐私，AUTO-TRIGGER 默认关闭。您必须明确启用才能使用。**
+**为保护隐私，AUTO-TRIGGER 默认关闭。您必须在配置中明确启用。**
 
 **什么是 AUTO-TRIGGER？**
 - 检测关键词：记住、保存、记录、remember 等
