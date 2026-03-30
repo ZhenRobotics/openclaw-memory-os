@@ -9,16 +9,30 @@ homepage: https://github.com/ZhenRobotics/openclaw-memory-os
 documentation: https://github.com/ZhenRobotics/openclaw-memory-os/blob/main/README.md
 
 # v0.2.0 Phase 1 - Conversation Recording Foundation
-# IMPORTANT: This skill requires external package installation via npm
+# ⚠️ CRITICAL: This is NOT an instruction-only skill
+# This skill REQUIRES external binaries and package installation
+runtime_dependencies:
+  required_binaries: [node, npm]  # Must have Node.js >=18 and npm installed
+  system_requirements:
+    - Node.js >=18.0.0 (NOT optional - required for execution)
+    - npm package manager (required for installation)
+    - ~50MB disk space for package and dependencies
+    - Write permissions for ~/.memory-os/
+
 install:
   type: npm_package
+  mechanism: global_npm_install  # Downloads and installs executable binary
   steps:
     - command: "npm install -g openclaw-memory-os@0.2.2"
-      description: "Install the Memory-OS CLI globally"
+      description: "Install the Memory-OS CLI globally (creates system binary)"
+      network_required: true
     - command: "openclaw-memory-os init"
       description: "Initialize local storage at ~/.memory-os/"
-  network_required: true  # npm install downloads from registry
-  disk_space: "~50MB"
+      creates_files: true
+  security_notes:
+    - "npm install executes code from npmjs.com registry"
+    - "Global install creates binaries in system PATH"
+    - "Verify package before installing (see audit section below)"
 
 requires:
   packages:
@@ -28,8 +42,8 @@ requires:
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
       verified_commit: 091eeab814533d2e3ae1738693445d2de8b3ab4d
   tools:
-    - node>=18
-    - npm
+    - node>=18  # REQUIRED - not optional
+    - npm       # REQUIRED - not optional
   api_keys: []  # No API keys needed after installation
 
 # Security & Privacy Declaration
@@ -57,9 +71,15 @@ security:
 ### 🔴 Known Privacy Risks (v0.2.2)
 
 1. **No Confirmation Prompts** - AUTO-TRIGGER saves immediately without asking
-2. **Privacy Filter Not Integrated** - Code exists but not applied (can save API keys, passwords, emails)
+2. **Privacy Filter Not Integrated** - Code exists but CLI doesn't use it yet
+   - ⚠️ Can capture: API keys, passwords, emails, credit cards, IP addresses, SSH keys
+   - ⚠️ Files with secrets (`.env`, `.aws/credentials`, `.ssh/config`) will be stored as-is
 3. **No Encryption** - Data stored as plain JSON files in `~/.memory-os/`
+   - Anyone with filesystem access can read your memories
+   - Plaintext storage includes any secrets accidentally collected
 4. **Broad Collection Risk** - `collect --source` can recursively scan any directory
+   - Can read: `~/.ssh/`, `~/.aws/`, `~/.config/`, system logs, browser history
+   - Will store whatever it finds without filtering
 
 ### ✅ SAFE USAGE RECOMMENDATIONS
 
@@ -74,8 +94,75 @@ security:
 **DO NOT:**
 - ❌ Enable AUTO-TRIGGER in production without code audit
 - ❌ Run `collect --source ~/` or other broad paths with sensitive data
+- ❌ Collect directories containing: `.env`, `.aws/`, `.ssh/`, `credentials.json`, etc.
 - ❌ Store API keys, passwords, or credentials in collected files
 - ❌ Trust plaintext storage for confidential information
+- ❌ Grant autonomous agent access if AUTO-TRIGGER is enabled
+
+---
+
+## 🔍 HOW TO AUDIT BEFORE INSTALLING
+
+**Step 1: Inspect the npm package**
+```bash
+# View package contents before installing
+npm view openclaw-memory-os@0.2.2
+
+# Check for postinstall scripts (should be none)
+npm show openclaw-memory-os@0.2.2 scripts
+
+# Download and inspect without installing
+npm pack openclaw-memory-os@0.2.2
+tar -xzf openclaw-memory-os-0.2.2.tgz
+cat package/package.json
+```
+
+**Step 2: Verify GitHub source matches npm package**
+```bash
+# Clone verified commit
+git clone https://github.com/ZhenRobotics/openclaw-memory-os.git
+cd openclaw-memory-os
+git checkout 091eeab814533d2e3ae1738693445d2de8b3ab4d
+
+# Review critical files
+cat src/cli/index.ts          # CLI entry point
+cat src/conversation/privacy-filter.ts  # Privacy filter implementation (exists but not integrated)
+cat src/storage/local-storage.ts        # Storage mechanism
+```
+
+**Step 3: Test in isolated environment**
+```bash
+# Use Docker for isolation
+docker run -it --rm --network none node:18 bash
+npm install -g openclaw-memory-os@0.2.2
+openclaw-memory-os init
+openclaw-memory-os remember "test data"
+
+# Inspect what was created
+ls -la ~/.memory-os/
+cat ~/.memory-os/memories/*.json
+```
+
+**Step 4: Monitor network activity**
+```bash
+# In one terminal
+sudo tcpdump -i any 'port 443 or port 80'
+
+# In another terminal
+openclaw-memory-os remember "test"
+# Should see ZERO network traffic after installation
+```
+
+**Step 5: Review filesystem permissions**
+```bash
+# Set strict permissions on data directory
+chmod 700 ~/.memory-os/
+chmod 600 ~/.memory-os/memories/*.json
+
+# Optional: Move to encrypted volume
+mv ~/.memory-os/ /path/to/encrypted/volume/
+ln -s /path/to/encrypted/volume/.memory-os ~/
+```
 
 ---
 
@@ -116,6 +203,32 @@ openclaw-memory-os init --enable-auto-trigger
 - ✅ All data stays local (100% offline during runtime)
 
 **Recommended:** Use manual commands for full control, only enable AUTO-TRIGGER after testing in sandbox.
+
+---
+
+## 🤖 AUTONOMOUS AGENT WARNING
+
+**If you use AI agents with autonomous execution capabilities:**
+
+⚠️ **DO NOT enable AUTO-TRIGGER if agents have autonomous invocation access**
+
+**Risk Scenario:**
+```
+1. Agent autonomously decides to "remember" something
+2. AUTO-TRIGGER detects keyword → saves immediately (no prompt)
+3. Saved content may include API keys from agent's context
+4. No confirmation, no filtering, plaintext storage
+```
+
+**Safe Configuration:**
+- ✅ Keep AUTO-TRIGGER disabled (default)
+- ✅ Use manual `remember` command only
+- ✅ Review agent's access to `openclaw-memory-os` commands
+- ✅ Set `disable-model-invocation: true` in skill config if available
+
+**Blast Radius:**
+- AUTO-TRIGGER OFF + Manual only = Low risk (user controls what's saved)
+- AUTO-TRIGGER ON + Autonomous agents = High risk (no human in the loop)
 
 ---
 
@@ -340,9 +453,15 @@ const timeline = await memory.timeline({
 ### 🔴 已知隐私风险（v0.2.2）
 
 1. **无确认提示** - AUTO-TRIGGER 启用后立即保存，不询问
-2. **隐私过滤未集成** - 代码已实现但未应用（可能保存 API 密钥、密码、邮箱）
+2. **隐私过滤未集成** - 代码已实现但 CLI 尚未使用
+   - ⚠️ 可能捕获：API 密钥、密码、邮箱、银行卡号、IP 地址、SSH 密钥
+   - ⚠️ 包含密钥的文件（`.env`、`.aws/credentials`、`.ssh/config`）会原样存储
 3. **无加密存储** - 数据以明文 JSON 存储于 `~/.memory-os/`
+   - 任何有文件系统访问权限的人都能读取您的记忆
+   - 明文存储包括意外采集的所有密钥
 4. **广泛采集风险** - `collect --source` 可递归扫描任意目录
+   - 可读取：`~/.ssh/`、`~/.aws/`、`~/.config/`、系统日志、浏览器历史
+   - 会原样存储所发现的任何内容，不过滤
 
 ### ✅ 安全使用建议
 
@@ -357,8 +476,10 @@ const timeline = await memory.timeline({
 **不应该做：**
 - ❌ 未审计代码前在生产环境启用 AUTO-TRIGGER
 - ❌ 对包含敏感数据的路径运行 `collect --source ~/`
+- ❌ 采集包含以下内容的目录：`.env`、`.aws/`、`.ssh/`、`credentials.json` 等
 - ❌ 在采集文件中存储 API 密钥、密码或凭证
 - ❌ 依赖明文存储保护机密信息
+- ❌ 启用 AUTO-TRIGGER 后授予自主 AI 代理访问权限
 
 ---
 
