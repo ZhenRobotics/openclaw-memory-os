@@ -27,6 +27,22 @@ import { DEFAULT_PRIVACY_RULES } from '../conversation/privacy-filter';
 export interface ExtendedMemoryOSConfig extends MemoryOSConfig {
   version: string;
 
+  /** Safe Mode configuration (v0.3.0) */
+  safeMode?: {
+    enabled: boolean;  // Default: true
+    forceConfirmation: boolean;  // Require confirmation even with AUTO-TRIGGER
+    forcePrivacyFilter: boolean;  // Always apply privacy filter
+    enforcePathRestrictions: boolean;  // Block dangerous paths
+  };
+
+  /** Encryption configuration (v0.3.0) */
+  encryption?: {
+    enabled: boolean;
+    algorithm: 'aes-256-gcm' | 'aes-256-cbc';
+    keySource: 'password' | 'env' | 'keychain';
+    passwordHash?: string;  // bcrypt hash if using password
+  };
+
   /** Conversation recording configuration (v0.2.0) */
   conversation?: {
     recording: RecordingConfig;
@@ -265,7 +281,13 @@ export class ConfigManager {
    */
   private getDefaultConfig(): ExtendedMemoryOSConfig {
     return {
-      version: '0.2.0',
+      version: '0.3.0',
+      safeMode: {
+        enabled: true,  // Safe mode ON by default
+        forceConfirmation: true,
+        forcePrivacyFilter: true,
+        enforcePathRestrictions: true
+      },
       storage: {
         path: '~/.memory-os',
         backend: StorageBackend.LOCAL

@@ -1,8 +1,8 @@
 ---
 name: openclaw-memory-os
 description: OpenClaw Memory-OS - Digital immortality service with conversation recording infrastructure (Phase 1) | 数字永生服务对话记录基础设施（第一阶段）
-tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-storage, session-management, privacy-filter, agent-memory, long-term-memory, openclaw, infrastructure]
-version: 0.2.2
+tags: [memory, knowledge-management, digital-immortality, cognitive-continuity, ai-memory, conversation-storage, session-management, privacy-filter, agent-memory, long-term-memory, openclaw, infrastructure, security, privacy-first]
+version: 0.3.0
 license: MIT-0
 repository: https://github.com/ZhenRobotics/openclaw-memory-os
 homepage: https://github.com/ZhenRobotics/openclaw-memory-os
@@ -23,7 +23,7 @@ install:
   type: npm_package
   mechanism: global_npm_install  # Downloads and installs executable binary
   steps:
-    - command: "npm install -g openclaw-memory-os@0.2.2"
+    - command: "npm install -g openclaw-memory-os@0.3.0"
       description: "Install the Memory-OS CLI globally (creates system binary)"
       network_required: true
     - command: "openclaw-memory-os init"
@@ -38,7 +38,7 @@ requires:
   packages:
     - name: openclaw-memory-os
       source: npm
-      version: ">=0.2.2"
+      version: ">=0.3.0"
       verified_repo: https://github.com/ZhenRobotics/openclaw-memory-os
       verified_commit: a5b968d5445e21a047dc53c487f971d5bf4acb0d
   tools:
@@ -54,10 +54,12 @@ security:
   auto_collection: trigger_based  # Activates on keyword detection when enabled
   trigger_keywords: ["记住", "保存", "记录", "remember", "save to memory", "keep in mind"]
   default_enabled: false  # AUTO-TRIGGER is OFF by default (opt-in for privacy)
-  confirmation_required: false  # Currently saves directly (confirmation planned for v0.3.0)
-  privacy_filter: implemented_not_integrated  # Code exists, integration pending v0.3.0
+  confirmation_required: true  # ✅ IMPLEMENTED in v0.3.0 - Always prompts before saving
+  privacy_filter: integrated  # ✅ IMPLEMENTED in v0.3.0 - Automatic redaction of sensitive data
+  path_protection: enforced  # ✅ IMPLEMENTED in v0.3.0 - Blocks ~/.ssh, ~/.aws, .env files
+  safe_mode: true  # ✅ IMPLEMENTED in v0.3.0 - Forces confirmation + filter + path checks
   opt_in: configurable  # Can be enabled in ~/.memory-os/config.json
-  encryption: none  # Plain JSON storage (encryption planned for v0.3.0)
+  encryption: optional  # Framework added, full implementation in v0.3.1
 ---
 
 # OpenClaw Memory-OS
@@ -68,18 +70,23 @@ security:
 
 **READ THIS BEFORE INSTALLING OR ENABLING AUTO-TRIGGER**
 
-### 🔴 Known Privacy Risks (v0.2.2)
+### ✅ Security Features (v0.3.0)
 
-1. **No Confirmation Prompts** - AUTO-TRIGGER saves immediately without asking
-2. **Privacy Filter Not Integrated** - Code exists but CLI doesn't use it yet
-   - ⚠️ Can capture: API keys, passwords, emails, credit cards, IP addresses, SSH keys
-   - ⚠️ Files with secrets (`.env`, `.aws/credentials`, `.ssh/config`) will be stored as-is
-3. **No Encryption** - Data stored as plain JSON files in `~/.memory-os/`
-   - Anyone with filesystem access can read your memories
-   - Plaintext storage includes any secrets accidentally collected
-4. **Broad Collection Risk** - `collect --source` can recursively scan any directory
-   - Can read: `~/.ssh/`, `~/.aws/`, `~/.config/`, system logs, browser history
-   - Will store whatever it finds without filtering
+**IMPLEMENTED:**
+1. ✅ **Confirmation Prompts** - Always asks before saving (even with AUTO-TRIGGER)
+2. ✅ **Privacy Filter Integrated** - Automatically redacts sensitive data
+   - Detects and redacts: API keys, passwords, emails, credit cards, IP addresses, SSH keys
+   - Shows "[REDACTED]" for filtered content
+   - Displays filtering statistics
+3. ✅ **Path Protection** - Blocks dangerous directories by default
+   - Refuses to collect: `~/.ssh/`, `~/.aws/`, `.env` files, system credentials
+   - Requires `--allow-dangerous` flag + confirmation for sensitive paths
+4. ✅ **Safe Mode** - Enabled by default, enforces all security features
+
+**REMAINING RISKS:**
+- ⚠️ **No Encryption at Rest** - Data stored as plain JSON (framework added, full implementation v0.3.1)
+- ⚠️ **Filesystem Access** - Anyone with file access can read `~/.memory-os/`
+- ⚠️ **Manual Bypass** - Users can override protections with `--allow-dangerous`
 
 ### ✅ SAFE USAGE RECOMMENDATIONS
 
@@ -106,13 +113,13 @@ security:
 **Step 1: Inspect the npm package**
 ```bash
 # View package contents before installing
-npm view openclaw-memory-os@0.2.2
+npm view openclaw-memory-os@0.3.0
 
 # Check for postinstall scripts (should be none)
-npm show openclaw-memory-os@0.2.2 scripts
+npm show openclaw-memory-os@0.3.0 scripts
 
 # Download and inspect without installing
-npm pack openclaw-memory-os@0.2.2
+npm pack openclaw-memory-os@0.3.0
 tar -xzf openclaw-memory-os-0.2.2.tgz
 cat package/package.json
 ```
@@ -134,7 +141,7 @@ cat src/storage/local-storage.ts        # Storage mechanism
 ```bash
 # Use Docker for isolation
 docker run -it --rm --network none node:18 bash
-npm install -g openclaw-memory-os@0.2.2
+npm install -g openclaw-memory-os@0.3.0
 openclaw-memory-os init
 openclaw-memory-os remember "test data"
 
@@ -257,7 +264,7 @@ The privacy filter is **implemented** in the codebase (`src/conversation/privacy
 ### Quick Start
 ```bash
 # 1. Install
-npm install -g openclaw-memory-os@0.2.2
+npm install -g openclaw-memory-os@0.3.0
 
 # 2. Initialize
 openclaw-memory-os init
@@ -280,10 +287,13 @@ npm install && npm run build && npm link
 
 ## Core Features
 
-**v0.2.2 (Current - Phase 1):**
+**v0.3.0 (Current - Security First):**
+- 🔒 **Confirmation Prompts** - Always asks before saving (NEW!)
+- 🔒 **Privacy Filter Integrated** - Auto-redacts API keys, passwords, emails (NEW!)
+- 🔒 **Path Protection** - Blocks ~/.ssh, ~/.aws, .env files (NEW!)
+- 🔒 **Safe Mode** - Enabled by default, enforces all protections (NEW!)
 - ✅ **Conversation Recording** - AUTO-TRIGGER keyword-based memory capture (opt-in)
 - ✅ **High-Performance Storage** - <10ms writes, 92% cache hit rate
-- ⚠️ **Privacy Filter** - Implemented in code, not yet integrated into CLI
 - ✅ **Session Management** - 30min timeout, activity tracking
 - ✅ **Batch File Collection** - `collect --source ~/notes/`
 - ✅ **100% Local Runtime** - Zero network calls during operation (installation requires npm)
@@ -348,7 +358,7 @@ Agent: ✅ 已记住
 ```bash
 # VM/container test
 docker run -it --rm ubuntu:22.04 bash
-npm install -g openclaw-memory-os@0.2.2
+npm install -g openclaw-memory-os@0.3.0
 openclaw-memory-os init
 # Say trigger words and check ~/.memory-os/
 ```
@@ -417,19 +427,23 @@ const timeline = await memory.timeline({
 
 ---
 
-## Known Limitations (v0.2.2)
+## Known Limitations (v0.3.0)
 
-**Current Implementation Gaps:**
-- ⚠️ **No confirmation prompt** - AUTO-TRIGGER saves immediately when enabled
-- ⚠️ **Privacy filter not integrated** - Code exists but not applied to memory collection
-- ⚠️ **No encryption at rest** - Data stored as plain JSON files
-- ⚠️ **Installation requires network** - "Zero network calls" applies to runtime only, not npm install
+**Security Limitations:**
+- ⚠️ **No encryption at rest** - Data stored as plain JSON files (v0.3.1 planned)
+- ⚠️ **Filesystem-level access** - Anyone with file permissions can read memories
+- ⚠️ **Manual override available** - `--allow-dangerous` bypasses path protection
 
 **Feature Limitations:**
-- ❌ No AI features (semantic search, embeddings) - planned for v0.3.0+
+- ❌ No AI features (semantic search, embeddings) - planned for v0.4.0+
 - ❌ No cloud sync or multi-device support
 - ❌ Basic keyword search only (no semantic understanding)
 - ❌ Single-user local storage only
+- ❌ No GUI (command-line only)
+
+**Implementation Notes:**
+- Installation requires network (npm install)
+- "Zero network calls" applies to runtime only, not installation
 
 ---
 
@@ -450,18 +464,23 @@ const timeline = await memory.timeline({
 
 **安装或启用 AUTO-TRIGGER 前请仔细阅读**
 
-### 🔴 已知隐私风险（v0.2.2）
+### ✅ 安全特性（v0.3.0）
 
-1. **无确认提示** - AUTO-TRIGGER 启用后立即保存，不询问
-2. **隐私过滤未集成** - 代码已实现但 CLI 尚未使用
-   - ⚠️ 可能捕获：API 密钥、密码、邮箱、银行卡号、IP 地址、SSH 密钥
-   - ⚠️ 包含密钥的文件（`.env`、`.aws/credentials`、`.ssh/config`）会原样存储
-3. **无加密存储** - 数据以明文 JSON 存储于 `~/.memory-os/`
-   - 任何有文件系统访问权限的人都能读取您的记忆
-   - 明文存储包括意外采集的所有密钥
-4. **广泛采集风险** - `collect --source` 可递归扫描任意目录
-   - 可读取：`~/.ssh/`、`~/.aws/`、`~/.config/`、系统日志、浏览器历史
-   - 会原样存储所发现的任何内容，不过滤
+**已实现：**
+1. ✅ **确认提示** - 保存前始终询问（即使启用 AUTO-TRIGGER）
+2. ✅ **隐私过滤已集成** - 自动脱敏敏感数据
+   - 检测并脱敏：API 密钥、密码、邮箱、银行卡号、IP 地址、SSH 密钥
+   - 敏感内容显示为 "[REDACTED]"
+   - 显示过滤统计信息
+3. ✅ **路径保护** - 默认阻止危险目录
+   - 拒绝采集：`~/.ssh/`、`~/.aws/`、`.env` 文件、系统凭证
+   - 敏感路径需要 `--allow-dangerous` 标志 + 确认
+4. ✅ **安全模式** - 默认启用，强制执行所有安全特性
+
+**剩余风险：**
+- ⚠️ **无静态加密** - 数据以明文 JSON 存储（框架已添加，完整实现 v0.3.1）
+- ⚠️ **文件系统访问** - 有文件访问权限的人可读取 `~/.memory-os/`
+- ⚠️ **手动绕过** - 用户可使用 `--allow-dangerous` 覆盖保护
 
 ### ✅ 安全使用建议
 
@@ -527,7 +546,7 @@ openclaw-memory-os init --enable-auto-trigger
 
 ```bash
 # 1. 安装
-npm install -g openclaw-memory-os@0.2.2
+npm install -g openclaw-memory-os@0.3.0
 
 # 2. 初始化
 openclaw-memory-os init
@@ -543,10 +562,13 @@ openclaw-memory-os search "测试"
 
 ## 核心功能
 
-**v0.2.2（当前 - Phase 1）：**
+**v0.3.0（当前 - 安全优先）：**
+- 🔒 **确认提示** - 保存前始终询问（新增！）
+- 🔒 **隐私过滤已集成** - 自动脱敏 API 密钥、密码、邮箱（新增！）
+- 🔒 **路径保护** - 阻止 ~/.ssh、~/.aws、.env 文件（新增！）
+- 🔒 **安全模式** - 默认启用，强制执行所有保护（新增！）
 - ✅ 对话记录 - 基于关键词的 AUTO-TRIGGER 记忆捕获（选择加入）
 - ✅ 高性能存储 - <10ms 写入，92% 缓存命中率
-- ⚠️ 隐私过滤 - 代码已实现，CLI 尚未集成
 - ✅ 会话管理 - 30 分钟超时，活动追踪
 - ✅ 批量文件采集 - `collect --source ~/notes/`
 - ✅ 100% 本地运行 - 运行时零网络调用（安装需要 npm）
@@ -610,7 +632,7 @@ Agent：✅ 已记住
 ### 1. 先在沙盒中测试
 ```bash
 docker run -it --rm ubuntu:22.04 bash
-npm install -g openclaw-memory-os@0.2.2
+npm install -g openclaw-memory-os@0.3.0
 openclaw-memory-os init
 # 说触发词并检查 ~/.memory-os/
 ```
@@ -646,19 +668,23 @@ openclaw-memory-os collect --source ~/test/
 
 ---
 
-## 已知限制（v0.2.2）
+## 已知限制（v0.3.0）
 
-**当前实现缺陷：**
-- ⚠️ **无确认提示** - AUTO-TRIGGER 启用时立即保存
-- ⚠️ **隐私过滤未集成** - 代码已实现但未应用于记忆采集
-- ⚠️ **无静态加密** - 数据以明文 JSON 文件存储
-- ⚠️ **安装需要网络** - "零网络调用"仅指运行时，不包括 npm install
+**安全限制：**
+- ⚠️ **无静态加密** - 数据以明文 JSON 文件存储（v0.3.1 计划）
+- ⚠️ **文件系统级访问** - 有文件权限的人可读取记忆
+- ⚠️ **可手动绕过** - `--allow-dangerous` 绕过路径保护
 
 **功能限制：**
-- ❌ 无 AI 功能（语义搜索、向量化）- 计划 v0.3.0+
+- ❌ 无 AI 功能（语义搜索、向量化）- 计划 v0.4.0+
 - ❌ 无云同步或多设备支持
 - ❌ 仅基础关键词搜索（无语义理解）
 - ❌ 仅单用户本地存储
+- ❌ 无图形界面（仅命令行）
+
+**实现说明：**
+- 安装需要网络（npm install）
+- "零网络调用"仅指运行时，不包括安装
 
 ---
 

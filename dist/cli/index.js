@@ -40,12 +40,69 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
+const readline_1 = require("readline");
 const memory_os_1 = require("../core/memory-os");
 const program = new commander_1.Command();
+// Helper function for user confirmation
+async function confirm(message) {
+    const rl = (0, readline_1.createInterface)({
+        input: process.stdin,
+        output: process.stdout,
+    });
+    return new Promise((resolve) => {
+        rl.question(`${message} (y/n): `, (answer) => {
+            rl.close();
+            resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes');
+        });
+    });
+}
+// Dangerous paths that should not be collected
+const DANGEROUS_PATHS = [
+    '~/.ssh',
+    '~/.aws',
+    '~/.gnupg',
+    '~/.config/gcloud',
+    '/etc/passwd',
+    '/etc/shadow',
+    '/etc/sudoers',
+    '~/.kube',
+    '~/.docker',
+];
+// Dangerous file patterns
+const DANGEROUS_PATTERNS = [
+    /\.env$/,
+    /\.env\./,
+    /credentials\.json$/,
+    /secret.*\.json$/,
+    /.*_key$/,
+    /.*_secret$/,
+    /id_rsa$/,
+    /id_ed25519$/,
+    /\.pem$/,
+    /\.key$/,
+];
+// Helper function to check if path is dangerous
+function isDangerousPath(path) {
+    const normalizedPath = path.replace(/^~/, process.env.HOME || '~');
+    // Check exact matches
+    for (const dangerousPath of DANGEROUS_PATHS) {
+        const normalizedDangerous = dangerousPath.replace(/^~/, process.env.HOME || '~');
+        if (normalizedPath === normalizedDangerous || normalizedPath.startsWith(normalizedDangerous + '/')) {
+            return true;
+        }
+    }
+    // Check patterns
+    for (const pattern of DANGEROUS_PATTERNS) {
+        if (pattern.test(path)) {
+            return true;
+        }
+    }
+    return false;
+}
 program
     .name('openclaw-memory-os')
     .description('数字永生服务 | 认知延续基础设施 - 对话记忆自动提取')
-    .version('0.2.1');
+    .version('0.3.0');
 // ============================================================================
 // Init Command
 // ============================================================================
@@ -95,11 +152,31 @@ program
     .option('-s, --source <path>', '源路径')
     .option('-r, --recursive', '递归扫描子目录', true)
     .option('--exclude <patterns...>', '排除模式')
+    .option('--allow-dangerous', '允许采集敏感路径（不推荐）', false)
     .action(async (options) => {
     if (!options.source) {
         console.error('❌ 错误: 必须指定 --source 参数');
         console.log('用法: openclaw-memory-os collect --source <path>');
         process.exit(1);
+    }
+    // Check for dangerous paths
+    if (isDangerousPath(options.source) && !options.allowDangerous) {
+        console.error('❌ 错误: 拒绝采集敏感路径\n');
+        console.error('路径:', options.source);
+        console.error('\n此路径可能包含敏感信息（密钥、凭证、配置）');
+        console.error('敏感路径包括: ~/.ssh, ~/.aws, .env 文件等\n');
+        console.error('如果确实需要采集此路径，请使用 --allow-dangerous 标志');
+        console.error('警告: 这可能导致敏感信息被存储为明文\n');
+        process.exit(1);
+    }
+    if (options.allowDangerous) {
+        console.warn('⚠️  警告: 已启用 --allow-dangerous，将采集敏感路径');
+        console.warn('⚠️  确保理解此操作的风险\n');
+        const confirmed = await confirm('是否继续采集敏感路径?');
+        if (!confirmed) {
+            console.log('\n❌ 已取消采集');
+            process.exit(0);
+        }
     }
     console.log('🚀 开始采集记忆...\n');
     const memory = new memory_os_1.MemoryOS({ storePath: '~/.memory-os' });
@@ -168,10 +245,46 @@ program
             console.log('提示: 使用 "记住..." 或 "remember..." 来触发记忆存储');
             process.exit(0);
         }
-        // Store the memory
+        // Apply privacy filter
+        const { PrivacyFilter } = await Promise.resolve().then(() => __importStar(require('../conversation/privacy-filter')));
+        const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+        const privacyFilter = new PrivacyFilter();
+        const filteredMessage = await privacyFilter.filterMessage({
+            id: uuidv4(),
+            sessionId: 'cli-session',
+            timestamp: new Date(),
+            role: 'user',
+            content: result.content,
+            metadata: {
+                source: 'cli-remember'
+            }
+        });
+        const filterStats = privacyFilter.getStats();
+        // Show what will be saved
+        console.log('📝 准备保存以下内容:\n');
+        console.log('─'.repeat(50));
+        console.log(filteredMessage.content);
+        console.log('─'.repeat(50));
+        console.log(`\n置信度: ${(result.metadata.confidence * 100).toFixed(0)}%`);
+        console.log(`语言: ${result.metadata.language === 'zh' ? '中文' : 'English'}`);
+        console.log(`类型: ${result.memoryType}`);
+        if (filterStats.messagesRedacted > 0) {
+            console.log(`\n🔒 隐私保护: ${filterStats.messagesRedacted} 项敏感信息已脱敏`);
+        }
+        if (filteredMessage.metadata?.filtered) {
+            console.log('⚠️  检测到敏感信息并已自动脱敏为 [REDACTED]');
+        }
+        // Ask for confirmation
+        console.log('\n');
+        const confirmed = await confirm('确认保存此记忆?');
+        if (!confirmed) {
+            console.log('\n❌ 已取消保存');
+            process.exit(0);
+        }
+        // Store the memory with filtered content
         await memory.collect({
             type: result.memoryType,
-            content: result.content,
+            content: filteredMessage.content,
             metadata: {
                 source: 'conversation',
                 trigger: result.metadata.trigger,
@@ -179,10 +292,11 @@ program
                 confidence: result.metadata.confidence,
                 entities: result.extractedEntities,
                 tags: ['conversation', 'auto-extracted'],
+                privacyFiltered: filteredMessage.metadata?.filtered || false,
             },
         });
         // Display confirmation
-        console.log('✅ 记忆已保存！\n');
+        console.log('\n✅ 记忆已保存！\n');
         console.log(extractor.formatConfirmation(result));
         console.log(`\n置信度: ${(result.metadata.confidence * 100).toFixed(0)}%`);
         console.log(`语言: ${result.metadata.language === 'zh' ? '中文' : 'English'}`);
